@@ -2,6 +2,7 @@ package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
+import top.brightsunshine.localcache.core.constant.CacheExpireContant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.proxy.CacheProxy;
 
@@ -41,11 +42,26 @@ public class CacheBuilder<K, V> {
     }
 
     public ICache<K, V> build(){
-        ICache<K, V> cache = new Cache<>();
+        Cache<K, V> cache = new Cache<>();
         cache.map(map);
         cache.capacity(capacity);
         cache.evictStrategy(cacheEvict);
 
+        cache.init(CacheExpireContant.PERIODIC_EXPIRE);
+
         return CacheProxy.getProxy(cache);
     }
+
+    public ICache<K, V> build(int cacheExpireStrategy){
+        Cache<K, V> cache = new Cache<>();
+        cache.map(map);
+        cache.capacity(capacity);
+        cache.evictStrategy(cacheEvict);
+
+        cache.init(cacheExpireStrategy);
+
+        return CacheProxy.getProxy(cache);
+    }
+
+
 }

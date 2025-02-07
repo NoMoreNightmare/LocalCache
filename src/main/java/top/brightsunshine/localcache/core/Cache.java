@@ -3,11 +3,15 @@ package top.brightsunshine.localcache.core;
 import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
+import top.brightsunshine.localcache.cacheInterface.ICacheExpire;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
+import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import static top.brightsunshine.localcache.core.constant.CacheExpireContant.PERIODIC_EXPIRE;
 
 public class Cache<K,V> implements ICache<K,V> {
     /**
@@ -29,6 +33,11 @@ public class Cache<K,V> implements ICache<K,V> {
      * 内存淘汰策略
      */
     ICacheEvict<K, V> cacheEvict;
+
+    /**
+     * 过期策略
+     */
+    ICacheExpire<K, V> cacheExpire;
 
     @Override
     public int getCapacity(){
@@ -81,7 +90,7 @@ public class Cache<K,V> implements ICache<K,V> {
     @CacheInterceptor(evict = true)
     public V get(Object key) {
         K keyKey = (K) key;
-
+        cacheExpire.tryToDeleteExpiredKey(keyKey);
         return map.get(key);
     }
 
@@ -89,7 +98,6 @@ public class Cache<K,V> implements ICache<K,V> {
     @CacheInterceptor(evict = true)
     public V put(K key, V value) {
         CacheEntry<K, V> evict = cacheEvict.evict(key, this);
-//        cacheEvict.updateStatus(key, this);
         return map.put(key, value);
     }
 
@@ -135,10 +143,39 @@ public class Cache<K,V> implements ICache<K,V> {
         return this;
     }
 
-
     /**
      * 过期策略
      */
+    @Override
+    @CacheInterceptor(evict = true)
+    public void put(K key, V value, long expire) {
+        this.put(key, value);
+        cacheExpire.expireKey(key, expire);
+    }
+
+    @Override
+    @CacheInterceptor(evict = true)
+    public void expire(K key, long expire) {
+        if(this.containsKey(key)) {
+            cacheExpire.expireKey(key, expire);
+        }
+    }
+
+    @Override
+    @CacheInterceptor(evict = true)
+    public void expireAt(K key, long expireAt) {
+        if(this.containsKey(key)) {
+            cacheExpire.expireKeyAt(key, expireAt);
+        }
+    }
+
+    @Override
+    public ICacheExpire<K, V> getExpireStrategy() {
+        return cacheExpire;
+    }
+
+
+
 
     /**
      * 删除监听类
@@ -147,4 +184,19 @@ public class Cache<K,V> implements ICache<K,V> {
     /**
      * 慢日志监听类
      */
+
+
+    public void init(int cacheExpire){
+        switch (cacheExpire){
+            case PERIODIC_EXPIRE : {
+                this.cacheExpire = new CacheExpirePeriodic<>(this);
+                break;
+            }
+            default : {
+                this.cacheExpire = new CacheExpirePeriodic<>(this);
+                break;
+            }
+
+        }
+    }
 }
