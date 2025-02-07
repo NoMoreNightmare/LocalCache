@@ -1,7 +1,6 @@
 package top.brightsunshine.localcache.core.proxy.icacheproxy;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
-import top.brightsunshine.localcache.core.proxy.CacheProxy;
 import top.brightsunshine.localcache.core.proxy.CacheProxyHelper;
 import top.brightsunshine.localcache.core.proxy.ICacheProxy;
 import top.brightsunshine.localcache.core.proxy.context.ICacheProxyContext;
@@ -52,7 +51,7 @@ public class DynamicProxy implements InvocationHandler, ICacheProxy {
                 .target(target);
 
         //执行拦截方法，并返回可能存在的结果
-        return CacheProxyHelper.getInsance().cacheProxyContext(context).execute();
+        return CacheProxyHelper.getInstance().cacheProxyContext(context).execute();
     }
 
     /**

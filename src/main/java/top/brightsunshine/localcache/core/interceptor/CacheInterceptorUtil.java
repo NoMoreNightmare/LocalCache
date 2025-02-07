@@ -7,7 +7,7 @@ import top.brightsunshine.localcache.core.interceptor.evict.CacheEvictIntercepto
 
 public class CacheInterceptorUtil {
 
-    public ICacheInterceptor getCacheInterceptor(ICacheEvict cacheEvict) {
+    public static ICacheInterceptor cacheEvictInterceptor() {
         return new CacheEvictInterceptor();
     }
 }

@@ -3,6 +3,7 @@ package top.brightsunshine.localcache.core.proxy.context;
 import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -25,4 +26,5 @@ public interface ICacheProxyContext {
     public CacheInterceptor interceptor();
 
 
+    Object invokeOrigin() throws InvocationTargetException, IllegalAccessException;
 }
