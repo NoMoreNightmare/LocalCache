@@ -11,4 +11,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CacheInterceptor {
     boolean evict() default false;
+
+    boolean evictAllExpired() default false;
 }

@@ -9,9 +9,13 @@ public interface ICacheExpire<K, V> {
 
     void expireKey(K key, long expire);
 
-    void lazyDeleteAllExpiredKeys(Set<K> keys);
+//    void lazyDeleteAllExpiredKeys(Set<K> keys);
+
+    void lazyDeleteAllExpiredKeys();
 
     Long expireTime(K key);
 
     void tryToDeleteExpiredKey(K key);
+
+    void deleteAllKeys();
 }

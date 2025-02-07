@@ -47,7 +47,6 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
             index.remove(prev.key());
             cache.remove(prev.key());
 
-            cache.decrementSize();
             return CacheEntry.of(prev.key(), prev.value());
         }
     }
@@ -56,7 +55,6 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
     public void updateStatus(K key, ICache<K, V> map) {
         if(map.containsKey(key)){
             deleteKey(key, map);
-            map.decrementSize();
         }
 
         LRUEntry<K, V> entry = new LRUEntry<>(key, null);
@@ -67,7 +65,6 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
 
         oldNext.setPrev(entry);
         entry.setNext(oldNext);
-        map.incrementSize();
         index.put(key, entry);
     }
 

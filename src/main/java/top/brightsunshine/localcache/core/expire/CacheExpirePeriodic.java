@@ -103,11 +103,11 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
 
     /**
      * 惰性删除整个map中所有过期的key
-     * @param keys
      */
     @Override
-    public void lazyDeleteAllExpiredKeys(Set<K> keys) {
-        for (K key : expireDict.keySet()) {
+    public void lazyDeleteAllExpiredKeys() {
+        Set<K> keyToRemove = new HashSet<>(expireDict.keySet());
+        for (K key : keyToRemove) {
             tryToDeleteExpiredKey(key);
         }
     }
@@ -136,5 +136,10 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
                 cache.remove(key);
             }
         }
+    }
+
+    @Override
+    public void deleteAllKeys() {
+        expireDict.clear();
     }
 }

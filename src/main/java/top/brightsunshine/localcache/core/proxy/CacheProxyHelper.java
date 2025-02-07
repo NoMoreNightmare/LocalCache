@@ -21,6 +21,11 @@ public class CacheProxyHelper {
      */
     private ICacheInterceptor cacheEvictInterceptor = CacheInterceptorUtil.cacheEvictInterceptor();
 
+    /**
+     * 获取的移除所有过期key的拦截器
+     */
+    private ICacheInterceptor cacheEvictAllExpireInterceptor = CacheInterceptorUtil.cacheEvictAllExpireInterceptor();
+
     public static CacheProxyHelper getInstance() {
         return new CacheProxyHelper();
     }
@@ -51,11 +56,19 @@ public class CacheProxyHelper {
             cacheEvictInterceptor.before(interceptorContext);
         }
 
+        if(interceptor.evictAllExpired()){
+            cacheEvictAllExpireInterceptor.before(interceptorContext);
+        }
+
         //执行原始方法
         Object result = cacheProxyContext.invokeOrigin();
         //执行所有拦截器的after方法
         if(interceptor.evict()){
             cacheEvictInterceptor.after(interceptorContext);
+        }
+
+        if(interceptor.evictAllExpired()){
+            cacheEvictAllExpireInterceptor.after(interceptorContext);
         }
 
 

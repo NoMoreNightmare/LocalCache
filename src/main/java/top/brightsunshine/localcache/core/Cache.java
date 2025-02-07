@@ -19,10 +19,6 @@ public class Cache<K,V> implements ICache<K,V> {
      */
     private int capacity;
 
-    /**
-     * 当前缓存数量
-     */
-    private int size = 0;
 
     /**
      * 存储缓存的hash表
@@ -44,15 +40,6 @@ public class Cache<K,V> implements ICache<K,V> {
         return capacity;
     }
 
-    @Override
-    public void incrementSize() {
-        this.size++;
-    }
-
-    @Override
-    public void decrementSize() {
-        this.size--;
-    }
 
     @Override
     public ICache<K, V> map(Map<K, V> map) {
@@ -67,21 +54,27 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public int size() {
-        return this.size;
+        return this.map.size();
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public boolean isEmpty() {
-        return this.size == 0;
+        return this.size() == 0;
     }
 
     @Override
+    @CacheInterceptor(evict = true)
     public boolean containsKey(Object key) {
+        K keyKey = (K) key;
+        cacheExpire.tryToDeleteExpiredKey(keyKey);
         return map.containsKey(key);
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
@@ -113,21 +106,25 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public void clear() {
         map.clear();
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public Set<K> keySet() {
         return map.keySet();
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public Collection<V> values() {
         return map.values();
     }
 
     @Override
+    @CacheInterceptor(evictAllExpired = true)
     public Set<Entry<K, V>> entrySet() {
         return map.entrySet();
     }
@@ -141,6 +138,11 @@ public class Cache<K,V> implements ICache<K,V> {
     public ICache<K, V> evictStrategy(ICacheEvict<K, V> strategy) {
         this.cacheEvict = strategy;
         return this;
+    }
+
+    @Override
+    public ICacheExpire<K, V> cacheExpire(){
+        return cacheExpire;
     }
 
     /**

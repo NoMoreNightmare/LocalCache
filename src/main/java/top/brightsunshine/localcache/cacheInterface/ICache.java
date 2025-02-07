@@ -11,15 +11,6 @@ public interface ICache<K, V> extends Map<K, V> {
      */
     int getCapacity();
 
-    /**
-     * cache的缓存项数量加1
-     */
-    void incrementSize();
-
-    /**
-     * cache的缓存项数量减1
-     */
-    void decrementSize();
 
     /**
      * 设置cache的底层存储对象map
@@ -38,6 +29,8 @@ public interface ICache<K, V> extends Map<K, V> {
     ICacheEvict<K, V> getEvictStrategy();
 
     ICache<K, V> evictStrategy(ICacheEvict<K, V> strategy);
+
+    ICacheExpire<K, V> cacheExpire();
 
     /**
      * 设置键值对的同时，设置过期时间
