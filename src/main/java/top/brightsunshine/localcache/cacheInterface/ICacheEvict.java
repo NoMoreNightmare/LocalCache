@@ -11,7 +11,7 @@ public interface ICacheEvict<K, V> {
      * @param cache
      * @return
      */
-    public CacheEntry<K, V> evict(ICache<K, V> cache);
+    public CacheEntry<K, V> evict(K key, ICache<K, V> cache);
 
     /**
      * 新增或更新key

@@ -78,13 +78,15 @@ public class Cache<K,V> implements ICache<K,V> {
 
     @Override
     public V get(Object key) {
+        K keyKey = (K) key;
+
         return map.get(key);
     }
 
     @Override
     public V put(K key, V value) {
-        CacheEntry<K, V> evict = cacheEvict.evict(this);
-        cacheEvict.updateStatus(key, this);
+        CacheEntry<K, V> evict = cacheEvict.evict(key, this);
+//        cacheEvict.updateStatus(key, this);
         return map.put(key, value);
     }
 
