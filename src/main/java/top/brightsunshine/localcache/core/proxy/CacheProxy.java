@@ -2,6 +2,7 @@ package top.brightsunshine.localcache.core.proxy;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
+import top.brightsunshine.localcache.core.proxy.icacheproxy.CglibProxy;
 import top.brightsunshine.localcache.core.proxy.icacheproxy.DynamicProxy;
 
 import java.lang.reflect.Proxy;
@@ -22,6 +23,6 @@ public class CacheProxy {
             return (ICache) new DynamicProxy(cache).proxy();
         }
 
-        return null;
+        return (ICache) new CglibProxy(cache).proxy();
     }
 }

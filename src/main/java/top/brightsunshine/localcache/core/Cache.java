@@ -1,5 +1,6 @@
 package top.brightsunshine.localcache.core;
 
+import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
@@ -77,6 +78,7 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    @CacheInterceptor(evict = true)
     public V get(Object key) {
         K keyKey = (K) key;
 
@@ -84,6 +86,7 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    @CacheInterceptor(evict = true)
     public V put(K key, V value) {
         CacheEntry<K, V> evict = cacheEvict.evict(key, this);
 //        cacheEvict.updateStatus(key, this);
@@ -91,6 +94,7 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    @CacheInterceptor(evict = true)
     public V remove(Object key) {
         return map.remove(key);
     }

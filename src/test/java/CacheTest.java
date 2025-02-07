@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Test;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.core.Cache;
+import top.brightsunshine.localcache.core.CacheBuilder;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 
 import java.util.HashMap;
@@ -23,5 +24,17 @@ public class CacheTest {
         System.out.println(cache.get("key1"));
 
         System.out.println(cache.get("key4"));
+    }
+
+    @Test
+    public void testCacheBuilderAOP(){
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> build = cacheBuilder.capacity(3).map(new HashMap<>()).build();
+        build.put("key1", "value1");
+        build.put("key2", "value2");
+        build.put("key3", "value3");
+        build.get("key1");
+        build.put("key4", "value4");
+        System.out.println(build.get("key1"));
     }
 }

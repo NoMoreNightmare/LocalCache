@@ -25,7 +25,7 @@ public class CacheProxyHelper {
         return new CacheProxyHelper();
     }
 
-    public CacheProxyHelper cacheProxyContext(CacheProxyContext cacheProxyContext) {
+    public CacheProxyHelper cacheProxyContext(ICacheProxyContext cacheProxyContext) {
         this.cacheProxyContext = cacheProxyContext;
 
         return this;
@@ -53,7 +53,6 @@ public class CacheProxyHelper {
 
         //执行原始方法
         Object result = cacheProxyContext.invokeOrigin();
-
         //执行所有拦截器的after方法
         if(interceptor.evict()){
             cacheEvictInterceptor.after(interceptorContext);
