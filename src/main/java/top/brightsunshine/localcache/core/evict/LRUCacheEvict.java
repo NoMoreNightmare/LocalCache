@@ -45,9 +45,9 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
             newPrev.setNext(head);
             head.setPrev(newPrev);
             index.remove(prev.key());
-            cache.remove(prev.key());
+            V value = cache.remove(prev.key());
 
-            return CacheEntry.of(prev.key(), prev.value());
+            return CacheEntry.of(prev.key(), value);
         }
     }
 

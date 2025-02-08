@@ -6,6 +6,7 @@ import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
+import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.load.CacheAofLoader;
 import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
@@ -52,6 +53,11 @@ public class Cache<K,V> implements ICache<K,V> {
      * 持久化对应的加载策略
      */
     ICacheLoader<K, V> cacheLoader;
+
+    /**
+     * 删除监听类
+     */
+    ICacheRemoveListener<K, V> removeListener;
 
     @Override
     public int getCapacity(){
@@ -108,7 +114,6 @@ public class Cache<K,V> implements ICache<K,V> {
     @Override
     @CacheInterceptor(evict = true, persist = true)
     public V put(K key, V value) {
-        CacheEntry<K, V> evict = cacheEvict.evict(key, this);
         return map.put(key, value);
     }
 
@@ -196,6 +201,17 @@ public class Cache<K,V> implements ICache<K,V> {
         return cachePersist;
     }
 
+    @Override
+    public ICacheRemoveListener<K, V> getRemoveListener() {
+        return removeListener;
+    }
+
+    @Override
+    public ICache<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
+        this.removeListener = listener;
+        return this;
+    }
+
     public ICache<K, V> initExpire(int cacheExpire){
         switch (cacheExpire){
             case PERIODIC_EXPIRE : {
@@ -211,10 +227,10 @@ public class Cache<K,V> implements ICache<K,V> {
         return this;
     }
 
-    public ICache<K, V> initPersist(int cachePersist, int persistTimeInfo){
+    public ICache<K, V> initPersist(int cachePersist, int persistTimeInfo, String filepath){
         switch (cachePersist){
             case AOF_PERSIST: {
-                this.cachePersist = new CachePersistAOF<>(this, persistTimeInfo, "1.aof");
+                this.cachePersist = new CachePersistAOF<>(this, persistTimeInfo, filepath);
                 break;
             }
             case NONE_PERSIST: {
@@ -256,10 +272,6 @@ public class Cache<K,V> implements ICache<K,V> {
         this.cacheLoader.load();
     }
 
-
-    /**
-     * 删除监听类
-     */
 
     /**
      * 慢日志监听类

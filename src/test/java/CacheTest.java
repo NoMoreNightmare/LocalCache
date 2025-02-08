@@ -75,7 +75,7 @@ public class CacheTest {
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
                 .cacheEvict(new LRUCacheEvict<>())
-                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS)
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
         for (int i = 0; i < 100; i++) {
@@ -90,7 +90,7 @@ public class CacheTest {
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
                 .cacheEvict(new LRUCacheEvict<>())
-                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_EVERYSEC)
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_EVERYSEC, "1.aof")
                 .build();
 
         for (int i = 0; i < 50; i++) {
@@ -110,7 +110,7 @@ public class CacheTest {
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
                 .cacheEvict(new LRUCacheEvict<>())
-                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS)
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
         for (int i = 0; i < 100; i++) {
@@ -121,10 +121,24 @@ public class CacheTest {
         ICache<String, String> newCache = newCacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
                 .cacheEvict(new LRUCacheEvict<>())
-                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS)
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .cacheLoader(CacheLoadConstant.AOF_LOAD, "1.aof")
                 .build();
 
         Assert.assertEquals(newCache.get("key1"), "value1");
+    }
+
+    @Test
+    public void testRemoveListener() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
+                .build();
+
+        for (int i = 0; i < 100; i++) {
+            cache.put("key" + i, "value" + i);
+        }
     }
 }

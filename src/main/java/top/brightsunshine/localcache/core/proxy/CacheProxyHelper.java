@@ -31,6 +31,7 @@ public class CacheProxyHelper {
      */
     private ICacheInterceptor cachePersistInterceptor = CacheInterceptorUtil.cachePersistInterceptor(null);
 
+
     public static CacheProxyHelper getInstance() {
         return new CacheProxyHelper();
     }
@@ -54,7 +55,8 @@ public class CacheProxyHelper {
         CacheInterceptorContext interceptorContext = CacheInterceptorContext.getInstance()
                 .method(cacheProxyContext.method())
                 .args(cacheProxyContext.args())
-                .cache(cache);
+                .cache(cache)
+                .removeListener(cache.getRemoveListener());
 
         //TODO 执行所有拦截器的before方法
         if(interceptor.evict()){

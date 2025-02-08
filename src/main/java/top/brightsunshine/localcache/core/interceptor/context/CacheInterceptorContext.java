@@ -1,6 +1,7 @@
 package top.brightsunshine.localcache.core.interceptor.context;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
+import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
 
 import java.lang.reflect.Method;
 
@@ -15,8 +16,19 @@ public class CacheInterceptorContext<K, V> {
 
     private Object result;
 
+    private ICacheRemoveListener<K, V> listener;
+
     public static <K,V> CacheInterceptorContext<K,V> getInstance() {
         return new CacheInterceptorContext<>();
+    }
+
+    public CacheInterceptorContext<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
+        this.listener = listener;
+        return this;
+    }
+
+    public ICacheRemoveListener<K, V> getRemoveListener() {
+        return listener;
     }
 
     public ICache<K, V> getCache() {

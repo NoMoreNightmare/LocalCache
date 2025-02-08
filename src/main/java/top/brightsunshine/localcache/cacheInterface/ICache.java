@@ -1,5 +1,7 @@
 package top.brightsunshine.localcache.cacheInterface;
 
+import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +68,19 @@ public interface ICache<K, V> extends Map<K, V> {
      * @return
      */
     ICachePersist<K, V> getPersistStrategy();
+
+    /**
+     * 获取删除监听器
+     * @return
+     */
+    ICacheRemoveListener<K, V> getRemoveListener();
+
+    /**
+     * 设置删除监听器
+     * @param listener
+     * @return
+     */
+    ICache<K, V> removeListener(ICacheRemoveListener<K, V> listener);
 //
 //    /**
 //     * 获取加载策略
