@@ -9,6 +9,7 @@ import top.brightsunshine.localcache.core.interceptor.evict.CacheEvictIntercepto
 import top.brightsunshine.localcache.core.interceptor.evictAllExpire.CacheEvictAllExpireInterceptor;
 import top.brightsunshine.localcache.core.interceptor.persist.CachePersistAOFInterceptor;
 import top.brightsunshine.localcache.core.interceptor.persist.CachePersistNoInterceptor;
+import top.brightsunshine.localcache.core.interceptor.slow.CacheSlowInterceptor;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
 
 public class CacheInterceptorUtil {
@@ -28,4 +29,7 @@ public class CacheInterceptorUtil {
         return new CachePersistNoInterceptor();
     }
 
+    public static ICacheInterceptor cacheSlowInterceptor() {
+        return new CacheSlowInterceptor();
+    }
 }

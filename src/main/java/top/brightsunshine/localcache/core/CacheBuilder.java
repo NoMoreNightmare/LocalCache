@@ -2,12 +2,14 @@ package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
+import top.brightsunshine.localcache.cacheInterface.ICacheSlowListener;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.listener.remove.CacheRemoveListener;
+import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
 import top.brightsunshine.localcache.core.proxy.CacheProxy;
 
 import java.util.HashMap;
@@ -75,6 +77,11 @@ public class CacheBuilder<K, V> {
      */
     private ICacheRemoveListener<K, V> removeListener = new CacheRemoveListener<>();
 
+    /**
+     * 默认的慢操作监听器
+     */
+    private ICacheSlowListener<K, V> slowListener = new CacheSlowListener<>();
+
     public CacheBuilder<K, V> map(Map<K, V> map) {
         this.map = map;
         return this;
@@ -124,12 +131,23 @@ public class CacheBuilder<K, V> {
         return this;
     }
 
+    public CacheBuilder<K, V> removeListener(ICacheRemoveListener<K, V> removeListener) {
+        this.removeListener = removeListener;
+        return this;
+    }
+
+    public CacheBuilder<K, V> slowListener(ICacheSlowListener<K, V> slowListener) {
+        this.slowListener = slowListener;
+        return this;
+    }
+
     public ICache<K, V> build(){
         Cache<K, V> cache = new Cache<>();
         cache.map(map);
         cache.capacity(capacity);
         cache.evictStrategy(cacheEvict);
         cache.removeListener(removeListener);
+        cache.slowListener(slowListener);
 
         cache.initExpire(cacheExpire);
         cache.initPersist(cachePersist, cachePersistTime, persistFilepath);

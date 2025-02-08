@@ -17,4 +17,6 @@ public @interface CacheInterceptor {
     boolean evictAllExpired() default false;
 
     boolean persist() default false;
+
+    boolean slow() default false;
 }

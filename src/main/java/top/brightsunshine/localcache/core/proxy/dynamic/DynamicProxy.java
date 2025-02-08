@@ -1,4 +1,4 @@
-package top.brightsunshine.localcache.core.proxy.icacheproxy;
+package top.brightsunshine.localcache.core.proxy.dynamic;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.core.proxy.CacheProxyHelper;

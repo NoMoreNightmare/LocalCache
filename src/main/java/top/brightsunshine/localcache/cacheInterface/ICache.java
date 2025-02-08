@@ -1,8 +1,5 @@
 package top.brightsunshine.localcache.cacheInterface;
 
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
-
-import java.util.List;
 import java.util.Map;
 
 public interface ICache<K, V> extends Map<K, V> {
@@ -81,6 +78,19 @@ public interface ICache<K, V> extends Map<K, V> {
      * @return
      */
     ICache<K, V> removeListener(ICacheRemoveListener<K, V> listener);
+
+    /**
+     * 获取慢操作监听器
+     * @return
+     */
+    ICacheSlowListener<K, V> getSlowListener();
+
+    /**
+     * 设置慢操作监听器
+     * @param listener
+     * @return
+     */
+    ICache<K, V> slowListener(ICacheSlowListener<K, V> listener);
 //
 //    /**
 //     * 获取加载策略

@@ -1,7 +1,8 @@
 package top.brightsunshine.localcache.core.interceptor.context;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheSlowListener;
 
 import java.lang.reflect.Method;
 
@@ -16,19 +17,34 @@ public class CacheInterceptorContext<K, V> {
 
     private Object result;
 
-    private ICacheRemoveListener<K, V> listener;
+    private ICacheRemoveListener<K, V> removeListener;
+
+    private ICacheSlowListener<K, V> slowListener;
+
+    private long startTime;
+
+    private long endTime;
 
     public static <K,V> CacheInterceptorContext<K,V> getInstance() {
         return new CacheInterceptorContext<>();
     }
 
     public CacheInterceptorContext<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
-        this.listener = listener;
+        this.removeListener = listener;
         return this;
     }
 
     public ICacheRemoveListener<K, V> getRemoveListener() {
-        return listener;
+        return removeListener;
+    }
+
+    public CacheInterceptorContext<K, V> slowListener(ICacheSlowListener<K, V> listener) {
+        this.slowListener = listener;
+        return this;
+    }
+
+    public ICacheSlowListener<K, V> getSlowListener() {
+        return slowListener;
     }
 
     public ICache<K, V> getCache() {
@@ -67,4 +83,21 @@ public class CacheInterceptorContext<K, V> {
         return this;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public CacheInterceptorContext<K, V> startTime(long startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public CacheInterceptorContext<K, V> endTime(long endTime) {
+        this.endTime = endTime;
+        return this;
+    }
 }

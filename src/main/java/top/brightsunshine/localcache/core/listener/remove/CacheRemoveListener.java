@@ -1,6 +1,6 @@
 package top.brightsunshine.localcache.core.listener.remove;
 
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 
 import java.io.File;
 import java.io.FileWriter;

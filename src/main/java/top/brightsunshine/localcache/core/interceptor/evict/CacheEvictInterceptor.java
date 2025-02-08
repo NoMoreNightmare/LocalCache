@@ -4,7 +4,7 @@ import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
 import top.brightsunshine.localcache.cacheInterface.ICacheInterceptor;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
 import top.brightsunshine.localcache.core.interceptor.context.CacheInterceptorContext;
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 
 import java.lang.reflect.Method;
 import java.util.Map;

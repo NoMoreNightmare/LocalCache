@@ -2,11 +2,8 @@ package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.*;
-import top.brightsunshine.localcache.core.constant.CachePersistConstant;
-import top.brightsunshine.localcache.core.entry.CacheEntry;
-import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.load.CacheAofLoader;
 import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
@@ -59,6 +56,11 @@ public class Cache<K,V> implements ICache<K,V> {
      */
     ICacheRemoveListener<K, V> removeListener;
 
+    /**
+     * 慢操作监听类
+     */
+    private ICacheSlowListener<K, V> slowListener;
+
     @Override
     public int getCapacity(){
         return capacity;
@@ -90,7 +92,7 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
-    @CacheInterceptor(evict = true)
+    @CacheInterceptor(evict = true, slow = true)
     public boolean containsKey(Object key) {
         K keyKey = (K) key;
         cacheExpire.tryToDeleteExpiredKey(keyKey);
@@ -98,13 +100,13 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
-    @CacheInterceptor(evictAllExpired = true)
+    @CacheInterceptor(evictAllExpired = true, slow = true)
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
 
     @Override
-    @CacheInterceptor(evict = true)
+    @CacheInterceptor(evict = true, slow = true)
     public V get(Object key) {
         K keyKey = (K) key;
         cacheExpire.tryToDeleteExpiredKey(keyKey);
@@ -112,43 +114,43 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public V put(K key, V value) {
         return map.put(key, value);
     }
 
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public V remove(Object key) {
         return map.remove(key);
     }
 
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public void putAll(Map<? extends K, ? extends V> m) {
         map.putAll(m);
     }
 
     @Override
-    @CacheInterceptor(evictAllExpired = true, persist = true)
+    @CacheInterceptor(evictAllExpired = true, persist = true, slow = true)
     public void clear() {
         map.clear();
     }
 
     @Override
-    @CacheInterceptor(evictAllExpired = true)
+    @CacheInterceptor(evictAllExpired = true, slow = true)
     public Set<K> keySet() {
         return map.keySet();
     }
 
     @Override
-    @CacheInterceptor(evictAllExpired = true)
+    @CacheInterceptor(evictAllExpired = true, slow = true)
     public Collection<V> values() {
         return map.values();
     }
 
     @Override
-    @CacheInterceptor(evictAllExpired = true)
+    @CacheInterceptor(evictAllExpired = true, slow = true)
     public Set<Entry<K, V>> entrySet() {
         return map.entrySet();
     }
@@ -173,20 +175,20 @@ public class Cache<K,V> implements ICache<K,V> {
      * 过期策略
      */
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public void put(K key, V value, long expire) {
         this.put(key, value);
         cacheExpire.expireKey(key, expire);
     }
 
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public void expire(K key, long expire) {
         cacheExpire.expireKey(key, expire);
     }
 
     @Override
-    @CacheInterceptor(evict = true, persist = true)
+    @CacheInterceptor(evict = true, persist = true, slow = true)
     public void expireAt(K key, long expireAt) {
         cacheExpire.expireKeyAt(key, expireAt);
     }
@@ -209,6 +211,17 @@ public class Cache<K,V> implements ICache<K,V> {
     @Override
     public ICache<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
         this.removeListener = listener;
+        return this;
+    }
+
+    @Override
+    public ICacheSlowListener<K, V> getSlowListener() {
+        return slowListener;
+    }
+
+    @Override
+    public ICache<K, V> slowListener(ICacheSlowListener<K, V> listener) {
+        this.slowListener = listener;
         return this;
     }
 
@@ -271,11 +284,6 @@ public class Cache<K,V> implements ICache<K,V> {
     public void init(){
         this.cacheLoader.load();
     }
-
-
-    /**
-     * 慢日志监听类
-     */
 
 }
 

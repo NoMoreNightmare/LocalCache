@@ -6,7 +6,6 @@ import top.brightsunshine.localcache.cacheInterface.ICacheInterceptor;
 import top.brightsunshine.localcache.core.interceptor.CacheInterceptorUtil;
 import top.brightsunshine.localcache.core.interceptor.context.CacheInterceptorContext;
 import top.brightsunshine.localcache.core.proxy.context.ICacheProxyContext;
-import top.brightsunshine.localcache.core.proxy.context.impl.CacheProxyContext;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -32,6 +31,8 @@ public class CacheProxyHelper {
     private ICacheInterceptor cachePersistInterceptor = CacheInterceptorUtil.cachePersistInterceptor(null);
 
 
+    private ICacheInterceptor cacheSlowInterceptor = CacheInterceptorUtil.cacheSlowInterceptor();
+
     public static CacheProxyHelper getInstance() {
         return new CacheProxyHelper();
     }
@@ -56,7 +57,13 @@ public class CacheProxyHelper {
                 .method(cacheProxyContext.method())
                 .args(cacheProxyContext.args())
                 .cache(cache)
-                .removeListener(cache.getRemoveListener());
+                .removeListener(cache.getRemoveListener())
+                .slowListener(cache.getSlowListener())
+                .startTime(System.currentTimeMillis());
+
+        if(interceptor.slow()){
+            cacheSlowInterceptor.before(interceptorContext);
+        }
 
         //TODO 执行所有拦截器的before方法
         if(interceptor.evict()){
@@ -73,7 +80,13 @@ public class CacheProxyHelper {
 
         //执行原始方法
         Object result = cacheProxyContext.invokeOrigin();
+
+        interceptorContext.endTime(System.currentTimeMillis());
+
         //执行所有拦截器的after方法
+        if(interceptor.slow()){
+            cacheSlowInterceptor.after(interceptorContext);
+        }
         if(interceptor.evict()){
             cacheEvictInterceptor.after(interceptorContext);
         }

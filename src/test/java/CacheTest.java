@@ -7,6 +7,7 @@ import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
 import java.util.HashMap;
+import java.util.Map;
 
 public class CacheTest {
     @Test
@@ -160,5 +161,22 @@ public class CacheTest {
         for(int i = 20; i < 100; i++) {
             cache.put("key" + i, "value" + i);
         }
+    }
+
+    @Test
+    public void testSlowListener() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
+                .build();
+
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < 1000; i++) {
+            map.put("key" + i, "value" + i);
+        }
+
+        cache.putAll(map);
     }
 }

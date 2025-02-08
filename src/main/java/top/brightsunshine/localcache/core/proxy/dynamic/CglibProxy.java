@@ -1,16 +1,14 @@
-package top.brightsunshine.localcache.core.proxy.icacheproxy;
+package top.brightsunshine.localcache.core.proxy.dynamic;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import top.brightsunshine.localcache.cacheInterface.ICache;
-import top.brightsunshine.localcache.core.proxy.CacheProxy;
 import top.brightsunshine.localcache.core.proxy.CacheProxyHelper;
 import top.brightsunshine.localcache.core.proxy.ICacheProxy;
 import top.brightsunshine.localcache.core.proxy.context.ICacheProxyContext;
 import top.brightsunshine.localcache.core.proxy.context.impl.CacheProxyContext;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 public class CglibProxy implements MethodInterceptor, ICacheProxy {

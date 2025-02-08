@@ -2,7 +2,7 @@ package top.brightsunshine.localcache.core.expire;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheExpire;
-import top.brightsunshine.localcache.core.listener.ICacheRemoveListener;
+import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.listener.remove.CacheRemoveConstant;
 
 import java.util.HashMap;
