@@ -2,7 +2,8 @@ package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
-import top.brightsunshine.localcache.core.constant.CacheExpireContant;
+import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
+import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.proxy.CacheProxy;
 
@@ -26,6 +27,21 @@ public class CacheBuilder<K, V> {
      */
     private ICacheEvict<K, V> cacheEvict = new LRUCacheEvict<>();
 
+    /**
+     * 默认过期策略
+     */
+    private int cacheExpire = CacheExpireConstant.PERIODIC_EXPIRE;
+
+    /**
+     * 默认内存持久化策略
+     */
+    private int cachePersist = CachePersistConstant.AOF_PERSIST;
+
+    /**
+     * 默认持久化周期
+     */
+    private int cachePersistTime = CachePersistConstant.AOF_ALWAYS;
+
     public CacheBuilder<K, V> map(Map<K, V> map) {
         this.map = map;
         return this;
@@ -33,6 +49,22 @@ public class CacheBuilder<K, V> {
 
     public CacheBuilder<K, V> cacheEvict(ICacheEvict<K, V> cacheEvict) {
         this.cacheEvict = cacheEvict;
+        return this;
+    }
+
+    public CacheBuilder<K, V> cacheExpire(int cacheExpire) {
+        this.cacheExpire = cacheExpire;
+        return this;
+    }
+
+    public CacheBuilder<K, V> noPersist() {
+        this.cachePersist = CachePersistConstant.NONE_PERSIST;
+        return this;
+    }
+
+    public CacheBuilder<K, V> cachePersist(int cachePersist, int cachePersistTime) {
+        this.cachePersist = cachePersist;
+        this.cachePersistTime = cachePersistTime;
         return this;
     }
 
@@ -47,21 +79,13 @@ public class CacheBuilder<K, V> {
         cache.capacity(capacity);
         cache.evictStrategy(cacheEvict);
 
-        cache.init(CacheExpireContant.PERIODIC_EXPIRE);
+        cache.initExpire(cacheExpire);
+        cache.initPersist(cachePersist, cachePersistTime);
 
         return CacheProxy.getProxy(cache);
     }
 
-    public ICache<K, V> build(int cacheExpireStrategy){
-        Cache<K, V> cache = new Cache<>();
-        cache.map(map);
-        cache.capacity(capacity);
-        cache.evictStrategy(cacheEvict);
 
-        cache.init(cacheExpireStrategy);
-
-        return CacheProxy.getProxy(cache);
-    }
 
 
 }

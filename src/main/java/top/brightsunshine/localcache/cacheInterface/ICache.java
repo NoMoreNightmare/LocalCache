@@ -60,12 +60,12 @@ public interface ICache<K, V> extends Map<K, V> {
      */
     ICacheExpire<K, V> getExpireStrategy();
 
-//
-//    /**
-//     * 获取持久化策略
-//     * @return
-//     */
-//    ICachePersist<K, V> getPersistStrategy();
+
+    /**
+     * 获取持久化策略
+     * @return
+     */
+    ICachePersist<K, V> getPersistStrategy();
 //
 //    /**
 //     * 获取加载策略

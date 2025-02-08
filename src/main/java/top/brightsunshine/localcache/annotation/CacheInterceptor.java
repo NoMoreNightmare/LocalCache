@@ -1,5 +1,7 @@
 package top.brightsunshine.localcache.annotation;
 
+import top.brightsunshine.localcache.core.constant.CachePersistConstant;
+
 import java.lang.annotation.*;
 
 /**
@@ -13,4 +15,6 @@ public @interface CacheInterceptor {
     boolean evict() default false;
 
     boolean evictAllExpired() default false;
+
+    boolean persist() default false;
 }

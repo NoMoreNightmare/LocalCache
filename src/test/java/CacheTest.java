@@ -1,11 +1,10 @@
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.core.Cache;
 import top.brightsunshine.localcache.core.CacheBuilder;
-import top.brightsunshine.localcache.core.constant.CacheExpireContant;
+import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
 import java.util.HashMap;
-import java.util.Map;
 
 public class CacheTest {
     @Test
@@ -40,7 +39,7 @@ public class CacheTest {
     @Test
     public void testCacheExpirePeriod() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
-        ICache<String, String> build = cacheBuilder.capacity(3).map(new HashMap<>()).build(CacheExpireContant.PERIODIC_EXPIRE);
+        ICache<String, String> build = cacheBuilder.capacity(3).map(new HashMap<>()).build(CacheExpireConstant.PERIODIC_EXPIRE);
         build.put("key1", "value1", 3000);
         build.put("key2", "value1", 2000);
         build.put("key3", "value1", 3000);
@@ -51,7 +50,7 @@ public class CacheTest {
     @Test
     public void testEvictAllExpireInterceptor() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
-        ICache<String, String> build = cacheBuilder.capacity(100).map(new HashMap<>()).build(CacheExpireContant.PERIODIC_EXPIRE);
+        ICache<String, String> build = cacheBuilder.capacity(100).map(new HashMap<>()).build(CacheExpireConstant.PERIODIC_EXPIRE);
 
 
         for (int i = 0; i < 50; i++) {

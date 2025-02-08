@@ -5,6 +5,7 @@ import top.brightsunshine.localcache.cacheInterface.ICacheInterceptor;
 import top.brightsunshine.localcache.core.interceptor.context.CacheInterceptorContext;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
     @Override
@@ -21,10 +22,16 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
         Method method = context.getMethod();
 
         //获取被拦截的方法的第一个参数：注意key在参数中的顺序
-        K key = (K) context.getArgs()[0];
-        if("remove".equals(method.getName())) {
+        if("putAll".equals(method.getName())) {
+            Map<K, V> kvPair = (Map<K, V>) context.getArgs()[0];
+            for(K key : kvPair.keySet()) {
+                evictStrategy.updateStatus(key, context.getCache());
+            }
+        }else if("remove".equals(method.getName())) {
+            K key = (K) context.getArgs()[0];
             evictStrategy.deleteKey(key, context.getCache());
         }else{
+            K key = (K) context.getArgs()[0];
             evictStrategy.updateStatus(key, context.getCache());
         }
     }

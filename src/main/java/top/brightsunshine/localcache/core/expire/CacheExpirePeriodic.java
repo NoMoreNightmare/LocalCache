@@ -88,7 +88,9 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
      */
     @Override
     public void expireKeyAt(K key, long expireAt) {
-        expireDict.put(key, expireAt);
+        if(cache.containsKey(key)) {
+            expireDict.put(key, expireAt);
+        }
     }
 
     /**
@@ -98,7 +100,9 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
      */
     @Override
     public void expireKey(K key, long expire) {
-        expireDict.put(key, System.currentTimeMillis() + expire);
+        if(cache.containsKey(key)) {
+            expireDict.put(key, System.currentTimeMillis() + expire);
+        }
     }
 
     /**
