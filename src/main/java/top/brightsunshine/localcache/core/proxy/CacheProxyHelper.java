@@ -26,13 +26,18 @@ public class CacheProxyHelper {
      */
     private ICacheInterceptor cacheEvictAllExpireInterceptor = CacheInterceptorUtil.cacheEvictAllExpireInterceptor();
 
+    /**
+     * 持久化拦截器
+     */
+    private ICacheInterceptor cachePersistInterceptor = CacheInterceptorUtil.cachePersistInterceptor(null);
+
     public static CacheProxyHelper getInstance() {
         return new CacheProxyHelper();
     }
 
     public CacheProxyHelper cacheProxyContext(ICacheProxyContext cacheProxyContext) {
         this.cacheProxyContext = cacheProxyContext;
-
+        this.cachePersistInterceptor = CacheInterceptorUtil.cachePersistInterceptor(cacheProxyContext.target().getPersistStrategy());
         return this;
     }
 
@@ -60,6 +65,10 @@ public class CacheProxyHelper {
             cacheEvictAllExpireInterceptor.before(interceptorContext);
         }
 
+        if(interceptor.persist()){
+            cachePersistInterceptor.before(interceptorContext);
+        }
+
         //执行原始方法
         Object result = cacheProxyContext.invokeOrigin();
         //执行所有拦截器的after方法
@@ -71,6 +80,9 @@ public class CacheProxyHelper {
             cacheEvictAllExpireInterceptor.after(interceptorContext);
         }
 
+        if(interceptor.persist()){
+            cachePersistInterceptor.after(interceptorContext);
+        }
 
         return result;
     }

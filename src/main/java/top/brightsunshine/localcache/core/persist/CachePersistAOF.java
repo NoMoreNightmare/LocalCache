@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -93,7 +95,14 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
     public void persist() {
         File file = new File(aofFilePath);
         if(!file.exists()){
-            file.getParentFile().mkdirs();
+            Path path = Paths.get(aofFilePath);
+            Path parent = path.getParent();
+            if(parent != null){
+                File parentFile = parent.toFile();
+                if(!parentFile.exists()){
+                    parentFile.mkdirs();
+                }
+            }
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -101,13 +110,20 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
             }
         }
 
+        PrintWriter writer = null;
+
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(aofFilePath, true));
+            writer = new PrintWriter(new FileWriter(aofFilePath, true));
             for (String json : buffer) {
                 writer.println(json);
             }
+            writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if(writer != null){
+                writer.close();
+            }
         }
 
         buffer.clear();

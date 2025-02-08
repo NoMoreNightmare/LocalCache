@@ -8,6 +8,7 @@ import top.brightsunshine.localcache.cacheInterface.ICachePersist;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
+import top.brightsunshine.localcache.core.persist.CacheNoPersist;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
 
 import java.util.Collection;
@@ -209,8 +210,12 @@ public class Cache<K,V> implements ICache<K,V> {
                 this.cachePersist = new CachePersistAOF<>(this, persistTimeInfo, "1.aof");
                 break;
             }
+            case NONE_PERSIST: {
+                this.cachePersist = new CacheNoPersist<>();
+                break;
+            }
             default : {
-                this.cachePersist = new CachePersistAOF<>(this, AOF_ALWAYS, "1.aof");
+                this.cachePersist = new CacheNoPersist<>();
                 break;
             }
         }

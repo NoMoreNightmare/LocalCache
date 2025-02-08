@@ -35,7 +35,7 @@ public class CacheBuilder<K, V> {
     /**
      * 默认内存持久化策略
      */
-    private int cachePersist = CachePersistConstant.AOF_PERSIST;
+    private int cachePersist = CachePersistConstant.NONE_PERSIST;
 
     /**
      * 默认持久化周期
