@@ -37,7 +37,7 @@ public class CacheRemoveListener<K, V> implements ICacheRemoveListener<K, V> {
         try {
             writer = new PrintWriter(new FileWriter(removeLog, true));
             String format = MessageFormat.format("Remove key: {0}, value: {1}, type: {2}\n",
-                    key, value, CacheRemoveConstant.REMOVE_EVICT);
+                    key, value, type);
             writer.println(format);
             writer.flush();
         } catch (IOException e) {

@@ -141,4 +141,24 @@ public class CacheTest {
             cache.put("key" + i, "value" + i);
         }
     }
+
+    @Test
+    public void testRemoveListenerForExpired() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
+                .build();
+
+        for (int i = 0; i < 20; i++) {
+            cache.put("key" + i, "value" + i, 20);
+        }
+
+        Thread.sleep(2000);
+
+        for(int i = 20; i < 100; i++) {
+            cache.put("key" + i, "value" + i);
+        }
+    }
 }
