@@ -1,13 +1,13 @@
 package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.annotation.CacheInterceptor;
-import top.brightsunshine.localcache.cacheInterface.ICache;
-import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
-import top.brightsunshine.localcache.cacheInterface.ICacheExpire;
-import top.brightsunshine.localcache.cacheInterface.ICachePersist;
+import top.brightsunshine.localcache.cacheInterface.*;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.entry.CacheEntry;
+import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
+import top.brightsunshine.localcache.core.load.CacheAofLoader;
+import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
 
@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static top.brightsunshine.localcache.core.constant.CacheExpireConstant.*;
+import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.AOF_LOAD;
+import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.NO_LOADER;
 import static top.brightsunshine.localcache.core.constant.CachePersistConstant.*;
 
 public class Cache<K,V> implements ICache<K,V> {
@@ -40,11 +42,16 @@ public class Cache<K,V> implements ICache<K,V> {
      */
     ICacheExpire<K, V> cacheExpire;
 
+
     /**
      * 持久化策略
      */
-
     ICachePersist<K, V> cachePersist;
+
+    /**
+     * 持久化对应的加载策略
+     */
+    ICacheLoader<K, V> cacheLoader;
 
     @Override
     public int getCapacity(){
@@ -221,6 +228,34 @@ public class Cache<K,V> implements ICache<K,V> {
         }
         return this;
     }
+
+    public ICache<K, V> initLoader(int cacheLoader, String filepath){
+        switch (cacheLoader){
+            case AOF_LOAD:{
+                this.cacheLoader = new CacheAofLoader<>(this, filepath);
+                break;
+            }
+            case NO_LOADER:{
+                this.cacheLoader = new NoLoader<>();
+                break;
+            }
+            default: {
+                this.cacheLoader = new NoLoader<>();
+            }
+
+        }
+        return this;
+    }
+
+    public ICache<K, V> noLoader(){
+        this.cacheLoader = new NoLoader<>();
+        return this;
+    }
+
+    public void init(){
+        this.cacheLoader.load();
+    }
+
 
     /**
      * 删除监听类

@@ -2,6 +2,7 @@ import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.core.Cache;
 import top.brightsunshine.localcache.core.CacheBuilder;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
+import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
@@ -100,5 +101,30 @@ public class CacheTest {
             cache.put("key" + i, "value" + i);
         }
 
+
+    }
+
+    @Test
+    public void testAOFLoad() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS)
+                .build();
+
+        for (int i = 0; i < 100; i++) {
+            cache.put("key" + i, "value" + i);
+        }
+
+        CacheBuilder<String, String> newCacheBuilder = new CacheBuilder<>();
+        ICache<String, String> newCache = newCacheBuilder.capacity(100).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS)
+                .cacheLoader(CacheLoadConstant.AOF_LOAD, "1.aof")
+                .build();
+
+        Assert.assertEquals(newCache.get("key1"), "value1");
     }
 }

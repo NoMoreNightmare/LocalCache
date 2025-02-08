@@ -3,6 +3,7 @@ package top.brightsunshine.localcache.core;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
+import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.core.proxy.CacheProxy;
@@ -42,6 +43,16 @@ public class CacheBuilder<K, V> {
      */
     private int cachePersistTime = CachePersistConstant.AOF_ALWAYS;
 
+    /**
+     * 默认加载策略
+     */
+    private int cacheLoad = CacheLoadConstant.NO_LOADER;
+
+    /**
+     * 加载路径
+     */
+    private String persistFilepath = "";
+
     public CacheBuilder<K, V> map(Map<K, V> map) {
         this.map = map;
         return this;
@@ -73,6 +84,12 @@ public class CacheBuilder<K, V> {
         return this;
     }
 
+    public CacheBuilder<K, V> cacheLoader(int cacheLoad, String filepath) {
+        this.cacheLoad = cacheLoad;
+        this.persistFilepath = filepath;
+        return this;
+    }
+
     public ICache<K, V> build(){
         Cache<K, V> cache = new Cache<>();
         cache.map(map);
@@ -81,6 +98,9 @@ public class CacheBuilder<K, V> {
 
         cache.initExpire(cacheExpire);
         cache.initPersist(cachePersist, cachePersistTime);
+        cache.initLoader(cacheLoad, persistFilepath);
+
+        cache.init();
 
         return CacheProxy.getProxy(cache);
     }
