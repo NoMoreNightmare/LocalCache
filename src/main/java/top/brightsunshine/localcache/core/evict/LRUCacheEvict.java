@@ -32,29 +32,25 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
 
     @Override
     public CacheEntry<K, V> evict(K key, ICache<K, V> cache) {
-        if(cache.size() < cache.getCapacity()){
-            updateStatus(key, cache);
+        if(cache.size() < cache.getCapacity() || index.containsKey(key)){
             return null;
         }else{
             //开始淘汰
             LRUEntry<K, V> prev = head.getPrev();
             LRUEntry<K, V> newPrev = prev.getPrev();
-//            prev.setPrev(null);
-//            prev.setNext(null);
 
             newPrev.setNext(head);
             head.setPrev(newPrev);
             index.remove(prev.key());
 
             V value = cache.remove(prev.key());
-
             return CacheEntry.of(prev.key(), value);
         }
     }
 
     @Override
     public void updateStatus(K key, ICache<K, V> map) {
-        if(map.containsKey(key)){
+        if(index.containsKey(key)){
             deleteKey(key, map);
         }
 

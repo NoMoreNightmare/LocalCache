@@ -4,6 +4,7 @@ import top.brightsunshine.localcache.core.CacheBuilder;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
+import top.brightsunshine.localcache.core.evict.LFUCacheEvict;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
 import java.util.HashMap;
@@ -30,13 +31,18 @@ public class CacheTest {
     @Test
     public void testCacheBuilderAOP(){
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
-        ICache<String, String> build = cacheBuilder.capacity(3).map(new HashMap<>()).build();
-        build.put("key1", "value1", 1000);
+        ICache<String, String> build = cacheBuilder.capacity(3).cacheEvict(new LRUCacheEvict<>()).map(new HashMap<>()).build();
+        build.put("key1", "value1");
         build.put("key2", "value2");
         build.put("key3", "value3");
         Assert.assertTrue(build.get("key1") != null);
         build.put("key4", "value4");
-        Assert.assertEquals(build.get("key1"), null);
+
+        Assert.assertEquals(null, build.get("key2"));
+
+        build.put("key5", "value5");
+        build.put("key6", "value6");
+        Assert.assertEquals("value4", build.get("key4"));
     }
 
     @Test
@@ -199,5 +205,33 @@ public class CacheTest {
         }
 
         Thread.sleep(2000);
+    }
+
+    @Test
+    public void testLFUEvict() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LFUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
+                .build();
+
+        cache.put("key1", "value1");
+        cache.put("key2", "value2");
+        cache.put("key3", "value3");
+
+        for (int i = 0; i < 4; i++) {
+            cache.get("key2");
+            cache.get("key3");
+        }
+
+        cache.get("key1");
+
+        cache.put("key4", "value4");
+
+        Assert.assertNull(cache.get("key1"));
+        Assert.assertEquals("value2", cache.get("key2"));
+        Assert.assertEquals("value3", cache.get("key3"));
+        Assert.assertEquals("value4", cache.get("key4"));
     }
 }
