@@ -61,21 +61,24 @@ public class CacheProxyHelper {
                 .slowListener(cache.getSlowListener())
                 .startTime(System.currentTimeMillis());
 
-        if(interceptor.slow()){
-            cacheSlowInterceptor.before(interceptorContext);
-        }
+        if(interceptor != null) {
+            if(interceptor.slow()){
+                cacheSlowInterceptor.before(interceptorContext);
+            }
 
-        //TODO 执行所有拦截器的before方法
-        if(interceptor.evict()){
-            cacheEvictInterceptor.before(interceptorContext);
-        }
+            //TODO 执行所有拦截器的before方法
+            if(interceptor.evict()){
+                cacheEvictInterceptor.before(interceptorContext);
+            }
 
-        if(interceptor.evictAllExpired()){
-            cacheEvictAllExpireInterceptor.before(interceptorContext);
-        }
+            if(interceptor.evictAllExpired()){
+                cacheEvictAllExpireInterceptor.before(interceptorContext);
+            }
 
-        if(interceptor.persist()){
-            cachePersistInterceptor.before(interceptorContext);
+            if(interceptor.persist()){
+                cachePersistInterceptor.before(interceptorContext);
+            }
+
         }
 
         //执行原始方法
@@ -83,21 +86,24 @@ public class CacheProxyHelper {
 
         interceptorContext.endTime(System.currentTimeMillis());
 
-        //执行所有拦截器的after方法
-        if(interceptor.slow()){
-            cacheSlowInterceptor.after(interceptorContext);
-        }
-        if(interceptor.evict()){
-            cacheEvictInterceptor.after(interceptorContext);
+        if(interceptor != null) {
+            //执行所有拦截器的after方法
+            if(interceptor.slow()){
+                cacheSlowInterceptor.after(interceptorContext);
+            }
+            if(interceptor.evict()){
+                cacheEvictInterceptor.after(interceptorContext);
+            }
+
+            if(interceptor.evictAllExpired()){
+                cacheEvictAllExpireInterceptor.after(interceptorContext);
+            }
+
+            if(interceptor.persist()){
+                cachePersistInterceptor.after(interceptorContext);
+            }
         }
 
-        if(interceptor.evictAllExpired()){
-            cacheEvictAllExpireInterceptor.after(interceptorContext);
-        }
-
-        if(interceptor.persist()){
-            cachePersistInterceptor.after(interceptorContext);
-        }
 
         return result;
     }

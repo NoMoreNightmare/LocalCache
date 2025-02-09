@@ -6,6 +6,7 @@ import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.expire.CacheExpireTimeWheel;
 import top.brightsunshine.localcache.core.load.CacheAofLoader;
+import top.brightsunshine.localcache.core.load.CacheRdbLoader;
 import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
@@ -16,8 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static top.brightsunshine.localcache.core.constant.CacheExpireConstant.*;
-import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.AOF_LOAD;
-import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.NO_LOADER;
+import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.*;
 import static top.brightsunshine.localcache.core.constant.CachePersistConstant.*;
 
 public class Cache<K,V> implements ICache<K,V> {
@@ -274,12 +274,17 @@ public class Cache<K,V> implements ICache<K,V> {
                 this.cacheLoader = new CacheAofLoader<>(this, filepath);
                 break;
             }
+            case RDB_LOAD: {
+                this.cacheLoader = new CacheRdbLoader<>(this, filepath);
+                break;
+            }
             case NO_LOADER:{
                 this.cacheLoader = new NoLoader<>();
                 break;
             }
             default: {
                 this.cacheLoader = new NoLoader<>();
+                break;
             }
 
         }

@@ -7,8 +7,12 @@ import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LFUCacheEvict;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
+import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.RDB_LOAD;
 
 public class CacheTest {
     @Test
@@ -274,10 +278,20 @@ public class CacheTest {
         cache.put("key4", "value4", 6000);
 
         Thread.sleep(2100);
-        System.exit(1);
         cache.put("key5", "value5", 6000);
         cache.put("key1", "value6", 6000);
+        cache.put("key7", "value7");
         Thread.sleep(2100);
 
+        ICache<String, String> newCache = cacheBuilder.capacity(3).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.RDB_PERSIST, CachePersistConstant.RDB_TEST_PERIOD, CachePersistConstant.DEFAULT_RDB_PATH)
+                .cacheLoader(RDB_LOAD, "1.rdb")
+                .build();
+
+        Assert.assertEquals("value6", newCache.get("key1"));
+        Assert.assertEquals("value5", newCache.get("key5"));
+        Assert.assertNull(newCache.getExpireStrategy().expireTime("key7"));
     }
 }
