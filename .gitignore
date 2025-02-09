@@ -40,3 +40,4 @@ build/
 /1.aof
 /remove.log
 /slowlog.log
+/1.rdb

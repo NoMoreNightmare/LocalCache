@@ -273,7 +273,8 @@ public class CacheTest {
         cache.put("key3", "value3", 22000);
         cache.put("key4", "value4", 6000);
 
-        Thread.sleep(2000);
+        Thread.sleep(2100);
+        System.exit(1);
         cache.put("key5", "value5", 6000);
         cache.put("key1", "value6", 6000);
         Thread.sleep(2100);

@@ -14,7 +14,7 @@ public class RdbPersistEntry<K, V> {
     /**
      * 过期时间
      */
-    private long expireAt;
+    private Long expireAt;
 
     public V getValue() {
         return value;
@@ -32,11 +32,11 @@ public class RdbPersistEntry<K, V> {
         this.key = key;
     }
 
-    public long getExpireAt() {
+    public Long getExpireAt() {
         return expireAt;
     }
 
-    public void setExpireAt(long expireAt) {
+    public void setExpireAt(Long expireAt) {
         this.expireAt = expireAt;
     }
 }

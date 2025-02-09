@@ -265,7 +265,12 @@ public class CacheExpireTimeWheel<K, V> implements ICacheExpire<K, V> {
 
     @Override
     public Long expireTime(K key) {
-        return keyToTimeWheelNode.get(key).getExpireAt();
+        if(keyToTimeWheelNode.containsKey(key)) {
+            return keyToTimeWheelNode.get(key).getExpireAt();
+        }else{
+            return null;
+        }
+
     }
 
     @Override
