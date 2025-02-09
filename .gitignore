@@ -39,3 +39,4 @@ build/
 /.idea/
 /1.aof
 /remove.log
+/slowlog.log

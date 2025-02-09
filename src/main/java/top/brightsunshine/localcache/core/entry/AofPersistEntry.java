@@ -1,6 +1,6 @@
 package top.brightsunshine.localcache.core.entry;
 
-public class AofPersistEntry {
+public class AofPersistEntry<K, V> {
 
     /**
      * 方法名

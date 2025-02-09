@@ -251,11 +251,32 @@ public class CacheTest {
 
         Thread.sleep(1000);
 
-//        Assert.assertNull(cache.get("key1"));
-//        Assert.assertNull(cache.get("key2"));
-//        Assert.assertNull(cache.get("key3"));
-//        Assert.assertEquals("value4", cache.get("key4"));
+        Assert.assertNull(cache.get("key1"));
+        Assert.assertNull(cache.get("key2"));
+        Assert.assertNull(cache.get("key3"));
+        Assert.assertEquals("value4", cache.get("key4"));
         Thread.sleep(60100);
-//        Assert.assertNull(cache.get("key4"));
+        Assert.assertNull(cache.get("key4"));
+    }
+
+    @Test
+    public void testPersistRDB() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
+                .cacheEvict(new LFUCacheEvict<>())
+                .cachePersist(CachePersistConstant.RDB_PERSIST, CachePersistConstant.RDB_TEST_PERIOD, CachePersistConstant.DEFAULT_RDB_PATH)
+                .build();
+
+        cache.put("key1", "value1", 4000);
+        cache.put("key2", "value2", 12000);
+        cache.put("key3", "value3", 22000);
+        cache.put("key4", "value4", 6000);
+
+        Thread.sleep(2000);
+        cache.put("key5", "value5", 6000);
+        cache.put("key1", "value6", 6000);
+        Thread.sleep(2100);
+
     }
 }

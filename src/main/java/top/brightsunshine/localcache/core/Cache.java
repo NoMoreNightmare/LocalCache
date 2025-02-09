@@ -9,6 +9,7 @@ import top.brightsunshine.localcache.core.load.CacheAofLoader;
 import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
+import top.brightsunshine.localcache.core.persist.CachePersistRDB;
 
 import java.util.Collection;
 import java.util.Map;
@@ -249,6 +250,10 @@ public class Cache<K,V> implements ICache<K,V> {
         switch (cachePersist){
             case AOF_PERSIST: {
                 this.cachePersist = new CachePersistAOF<>(this, persistTimeInfo, filepath);
+                break;
+            }
+            case RDB_PERSIST: {
+                this.cachePersist = new CachePersistRDB<>(this, persistTimeInfo, filepath);
                 break;
             }
             case NONE_PERSIST: {

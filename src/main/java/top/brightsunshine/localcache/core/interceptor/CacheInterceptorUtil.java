@@ -11,6 +11,7 @@ import top.brightsunshine.localcache.core.interceptor.persist.CachePersistAOFInt
 import top.brightsunshine.localcache.core.interceptor.persist.CachePersistNoInterceptor;
 import top.brightsunshine.localcache.core.interceptor.slow.CacheSlowInterceptor;
 import top.brightsunshine.localcache.core.persist.CachePersistAOF;
+import top.brightsunshine.localcache.core.persist.CachePersistRDB;
 
 public class CacheInterceptorUtil {
 
