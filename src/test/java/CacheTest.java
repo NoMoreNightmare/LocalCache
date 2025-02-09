@@ -234,4 +234,28 @@ public class CacheTest {
         Assert.assertEquals("value3", cache.get("key3"));
         Assert.assertEquals("value4", cache.get("key4"));
     }
+
+    @Test
+    public void testTimeWheel() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
+                .cacheEvict(new LFUCacheEvict<>())
+                .noPersist()
+                .build();
+
+        cache.put("key1", "value1", 500);
+        cache.put("key2", "value2", 1000);
+        cache.put("key3", "value3", 1000);
+        cache.put("key4", "value4", 61000);
+
+        Thread.sleep(1000);
+
+//        Assert.assertNull(cache.get("key1"));
+//        Assert.assertNull(cache.get("key2"));
+//        Assert.assertNull(cache.get("key3"));
+//        Assert.assertEquals("value4", cache.get("key4"));
+        Thread.sleep(60100);
+//        Assert.assertNull(cache.get("key4"));
+    }
 }

@@ -4,6 +4,7 @@ import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.*;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
+import top.brightsunshine.localcache.core.expire.CacheExpireTimeWheel;
 import top.brightsunshine.localcache.core.load.CacheAofLoader;
 import top.brightsunshine.localcache.core.load.NoLoader;
 import top.brightsunshine.localcache.core.persist.CacheNoPersist;
@@ -231,7 +232,11 @@ public class Cache<K,V> implements ICache<K,V> {
                 this.cacheExpire = new CacheExpirePeriodic<>(this);
                 break;
             }
-            default : {
+            case TIME_WHEEL_EXPIRE: {
+                this.cacheExpire = new CacheExpireTimeWheel<>(this);
+                break;
+            }
+            default: {
                 this.cacheExpire = new CacheExpirePeriodic<>(this);
                 break;
             }
