@@ -179,4 +179,25 @@ public class CacheTest {
 
         cache.putAll(map);
     }
+
+    @Test
+    public void testEvictBeforeExpire() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
+                .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
+                .cacheEvict(new LRUCacheEvict<>())
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
+                .build();
+
+        for (int i = 0; i < 20; i++) {
+            cache.put("key" + i, "value" + i, 20);
+        }
+
+
+        for(int i = 20; i < 100; i++) {
+            cache.put("key" + i, "value" + i);
+        }
+
+        Thread.sleep(2000);
+    }
 }

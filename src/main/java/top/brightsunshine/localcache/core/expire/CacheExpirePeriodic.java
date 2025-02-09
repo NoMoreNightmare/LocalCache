@@ -73,7 +73,12 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
                 int count = 0;
                 int currentSampleSize = 0;
                 Set<K> keyToRemove = new HashSet<>();
+                Set<K> keyAlreadyRemoved = new HashSet<>();
                 for (K key : expireDict.keySet()) {
+                    if(!cache.containsKey(key)) {
+                        keyAlreadyRemoved.add(key);
+                        continue;
+                    }
                     if(key != null && expireDict.get(key) <= System.currentTimeMillis()) {
                         count++;
                         keyToRemove.add(key);
@@ -86,6 +91,10 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
 
                 for (K key : keyToRemove) {
                     tryToDeleteExpiredKey(key);
+                }
+
+                for (K key : keyAlreadyRemoved) {
+                    expireDict.remove(key);
                 }
 
                 if(count < SAMPLE_SIZE * EXPIRED_KEY_PERCENTAGE) {
