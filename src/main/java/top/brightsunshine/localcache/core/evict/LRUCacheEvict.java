@@ -57,7 +57,7 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
     }
 
     @Override
-    public void updateStatus(K key) {
+    public CacheEntry<K, V> updateStatus(K key) {
         if(index.containsKey(key)){
             deleteKey(key);
         }
@@ -71,6 +71,7 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
         oldNext.setPrev(entry);
         entry.setNext(oldNext);
         index.put(key, entry);
+        return null;
     }
 
     @Override

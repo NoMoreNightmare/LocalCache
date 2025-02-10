@@ -68,7 +68,7 @@ public class LFUCacheEvict<K, V> implements ICacheEvict<K, V> {
     }
 
     @Override
-    public void updateStatus(K key) {
+    public CacheEntry<K, V> updateStatus(K key) {
 
         int freq = 0;
         if(index.containsKey(key)) {
@@ -99,7 +99,7 @@ public class LFUCacheEvict<K, V> implements ICacheEvict<K, V> {
         entry.setNext(oldNext);
 
         index.put(key, entry);
-
+        return null;
     }
 
     @Override

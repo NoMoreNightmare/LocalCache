@@ -16,7 +16,7 @@ public interface ICacheEvict<K, V> {
      * 新增或更新key
      * @param key
      */
-    void updateStatus(K key);
+    CacheEntry<K, V> updateStatus(K key);
 
     /**
      * 删除key

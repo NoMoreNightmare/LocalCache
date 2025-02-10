@@ -8,6 +8,7 @@ import top.brightsunshine.localcache.core.constant.CachePersistConstant;
 import top.brightsunshine.localcache.core.evict.LFUCacheEvict;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
+import top.brightsunshine.localcache.core.evict.WTinyLFUCacheEvict;
 import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
 
 import java.util.HashMap;
@@ -297,4 +298,37 @@ public class CacheTest {
         Assert.assertEquals("value5", newCache.get("key5"));
         Assert.assertNull(newCache.getExpireStrategy().expireTime("key7"));
     }
+
+    @Test
+    public void testCMS() throws InterruptedException {
+        CMS<String> cms = new CMS<>();
+        cms.ensureCapacity(100L);
+        cms.increment("nihao");
+    }
+
+    @Test
+    public void testWTinyLFUEvict() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
+                .slowListener(new CacheSlowListener<>())
+                .cacheEvict(CacheEvictConstant.W_TINY_LFU)
+                .build();
+
+        WTinyLFUCacheEvict evict = (WTinyLFUCacheEvict) cache.getEvictStrategy();
+        for(int i = 0; i < 101; i++){
+            cache.put("key" + i, "value" + i);
+        }
+
+        evict = (WTinyLFUCacheEvict) cache.getEvictStrategy();
+        for (int i = 0; i < 101; i++) {
+            for (int j = 0; j < 7; j++) {
+                cache.get("key" + i);
+            }
+        }
+
+        evict = (WTinyLFUCacheEvict) cache.getEvictStrategy();
+    }
+
+
+
 }
