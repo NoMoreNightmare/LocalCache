@@ -11,24 +11,36 @@ import java.util.Map;
 
 public class LFUCacheEvict<K, V> implements ICacheEvict<K, V> {
 
-    //key和对应entry的映射
+    /**
+     * key和对应entry的映射
+     */
     private Map<K, LFUEntry<K, V>> index = new HashMap<>();
 
-    //freq和entry所代表的列表的映射
+    /**
+     * freq和entry所代表的列表的映射
+     */
     private Map<Integer, LFUEntry<K, V>> freqToEntryList = new HashMap<>();
 
-    //当前最小的freq
+    /**
+     * 当前最小的freq
+     */
     private int minFreq = 1;
 
-    public LFUCacheEvict() {
+    /**
+     * 缓存
+     */
+    private ICache<K, V> cache;
+
+    public LFUCacheEvict(ICache<K, V> cache) {
         LFUEntry<K, V> newHead = new LFUEntry<>(null, null, 1);
         newHead.setNext(newHead);
         newHead.setPrev(newHead);
+        this.cache = cache;
         freqToEntryList.put(1, newHead);
     }
 
     @Override
-    public CacheEntry<K, V> evict(K key, ICache<K, V> cache) {
+    public CacheEntry<K, V> evict(K key) {
         if(cache.size() < cache.getCapacity() || index.containsKey(key)) {
             return null;
         }else{
@@ -50,18 +62,18 @@ public class LFUCacheEvict<K, V> implements ICacheEvict<K, V> {
             minFreq = 1;
 
             V value = cache.remove(prev.getKey());
-            updateStatus(key, cache);
+            updateStatus(key);
             return CacheEntry.of(prev.getKey(), value);
         }
     }
 
     @Override
-    public void updateStatus(K key, ICache<K, V> cache) {
+    public void updateStatus(K key) {
 
         int freq = 0;
         if(index.containsKey(key)) {
             freq = index.get(key).getFreq();
-            deleteKey(key, cache);
+            deleteKey(key);
         }else{
             minFreq = 1;
         }
@@ -91,7 +103,7 @@ public class LFUCacheEvict<K, V> implements ICacheEvict<K, V> {
     }
 
     @Override
-    public void deleteKey(K key, ICache<K, V> cache) {
+    public void deleteKey(K key) {
         LFUEntry<K, V> entryToRemove = index.get(key);
         if(entryToRemove != null) {
             LFUEntry<K, V> prev = entryToRemove.getPrev();

@@ -21,14 +21,14 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
         ICacheEvict<K, V> evictStrategy = context.getCache().getEvictStrategy();
 
         if("put".equals(method.getName())) {
-            CacheEntry<K, V> entry = evictStrategy.evict((K) args[0], context.getCache());
+            CacheEntry<K, V> entry = evictStrategy.evict((K) args[0]);
             if(entry != null) {
                 listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
             }
         }else if("putAll".equals(method.getName())) {
             Map<K, V> map = (Map<K, V>) args[0];
             for (K key : map.keySet()) {
-                CacheEntry<K, V> entry = evictStrategy.evict(key, context.getCache());
+                CacheEntry<K, V> entry = evictStrategy.evict(key);
                 if(entry != null) {
                     listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
                 }
@@ -48,14 +48,14 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
         if("putAll".equals(method.getName())) {
             Map<K, V> kvPair = (Map<K, V>) context.getArgs()[0];
             for(K key : kvPair.keySet()) {
-                evictStrategy.updateStatus(key, context.getCache());
+                evictStrategy.updateStatus(key);
             }
         }else if("remove".equals(method.getName())) {
             K key = (K) context.getArgs()[0];
-            evictStrategy.deleteKey(key, context.getCache());
+            evictStrategy.deleteKey(key);
         }else{
             K key = (K) context.getArgs()[0];
-            evictStrategy.updateStatus(key, context.getCache());
+            evictStrategy.updateStatus(key);
         }
     }
 }

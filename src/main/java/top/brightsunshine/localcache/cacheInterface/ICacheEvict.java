@@ -8,20 +8,19 @@ public interface ICacheEvict<K, V> {
 
     /**
      * 尝试淘汰key
-     * @param cache
      * @return
      */
-    public CacheEntry<K, V> evict(K key, ICache<K, V> cache);
+    public CacheEntry<K, V> evict(K key);
 
     /**
      * 新增或更新key
      * @param key
      */
-    void updateStatus(K key, ICache<K, V> cache);
+    void updateStatus(K key);
 
     /**
      * 删除key
      * @param key
      */
-    void deleteKey(K key, ICache<K, V> cache);
+    void deleteKey(K key);
 }

@@ -3,6 +3,7 @@ package top.brightsunshine.localcache.core;
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
 import top.brightsunshine.localcache.cacheInterface.ICacheSlowListener;
+import top.brightsunshine.localcache.core.constant.CacheEvictConstant;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
@@ -30,7 +31,9 @@ public class CacheBuilder<K, V> {
     /**
      * 默认内存淘汰策略
      */
-    private ICacheEvict<K, V> cacheEvict = new LRUCacheEvict<>();
+//    private ICacheEvict<K, V> cacheEvict = new LRUCacheEvict<>();
+    private int cacheEvict = CacheEvictConstant.LRU;
+
 
     /**
      * 默认过期策略
@@ -87,7 +90,7 @@ public class CacheBuilder<K, V> {
         return this;
     }
 
-    public CacheBuilder<K, V> cacheEvict(ICacheEvict<K, V> cacheEvict) {
+    public CacheBuilder<K, V> cacheEvict(int cacheEvict) {
         this.cacheEvict = cacheEvict;
         return this;
     }
@@ -145,10 +148,11 @@ public class CacheBuilder<K, V> {
         Cache<K, V> cache = new Cache<>();
         cache.map(map);
         cache.capacity(capacity);
-        cache.evictStrategy(cacheEvict);
+//        cache.evictStrategy(cacheEvict);
         cache.removeListener(removeListener);
         cache.slowListener(slowListener);
 
+        cache.initEvict(cacheEvict);
         cache.initExpire(cacheExpire);
         cache.initPersist(cachePersist, cachePersistTime, persistFilepath);
         cache.initLoader(cacheLoad, loadFilepath);

@@ -1,6 +1,7 @@
 import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.core.Cache;
 import top.brightsunshine.localcache.core.CacheBuilder;
+import top.brightsunshine.localcache.core.constant.CacheEvictConstant;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
@@ -12,6 +13,8 @@ import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static top.brightsunshine.localcache.core.constant.CacheEvictConstant.LFU;
+import static top.brightsunshine.localcache.core.constant.CacheEvictConstant.LRU;
 import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.RDB_LOAD;
 
 public class CacheTest {
@@ -20,7 +23,7 @@ public class CacheTest {
         ICache<String, String> cache = new Cache<String, String>();
         cache.map(new HashMap<>())
                 .capacity(3)
-                .evictStrategy(new LRUCacheEvict<>());
+                .evictStrategy(new LRUCacheEvict<>(cache));
 
         cache.put("key1", "value1");
         cache.put("key2", "value2");
@@ -35,7 +38,7 @@ public class CacheTest {
     @Test
     public void testCacheBuilderAOP(){
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
-        ICache<String, String> build = cacheBuilder.capacity(3).cacheEvict(new LRUCacheEvict<>()).map(new HashMap<>()).build();
+        ICache<String, String> build = cacheBuilder.capacity(3).cacheEvict(LRU).map(new HashMap<>()).build();
         build.put("key1", "value1");
         build.put("key2", "value2");
         build.put("key3", "value3");
@@ -85,7 +88,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -100,7 +103,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_EVERYSEC, "1.aof")
                 .build();
 
@@ -120,7 +123,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -131,7 +134,7 @@ public class CacheTest {
         CacheBuilder<String, String> newCacheBuilder = new CacheBuilder<>();
         ICache<String, String> newCache = newCacheBuilder.capacity(100).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .cacheLoader(CacheLoadConstant.AOF_LOAD, "1.aof")
                 .build();
@@ -144,7 +147,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -158,7 +161,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -178,7 +181,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -195,7 +198,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -216,7 +219,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
-                .cacheEvict(new LFUCacheEvict<>())
+                .cacheEvict(LFU)
                 .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "1.aof")
                 .build();
 
@@ -244,7 +247,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
-                .cacheEvict(new LFUCacheEvict<>())
+                .cacheEvict(LFU)
                 .noPersist()
                 .build();
 
@@ -268,7 +271,7 @@ public class CacheTest {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(3).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
-                .cacheEvict(new LFUCacheEvict<>())
+                .cacheEvict(LFU)
                 .cachePersist(CachePersistConstant.RDB_PERSIST, CachePersistConstant.RDB_TEST_PERIOD, CachePersistConstant.DEFAULT_RDB_PATH)
                 .build();
 
@@ -285,7 +288,7 @@ public class CacheTest {
 
         ICache<String, String> newCache = cacheBuilder.capacity(3).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.TIME_WHEEL_EXPIRE)
-                .cacheEvict(new LRUCacheEvict<>())
+                .cacheEvict(LRU)
                 .cachePersist(CachePersistConstant.RDB_PERSIST, CachePersistConstant.RDB_TEST_PERIOD, CachePersistConstant.DEFAULT_RDB_PATH)
                 .cacheLoader(RDB_LOAD, "1.rdb")
                 .build();

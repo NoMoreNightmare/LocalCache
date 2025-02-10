@@ -20,18 +20,26 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
      *
      */
     private LRUEntry<K, V> head;
-    Map<K, LRUEntry<K, V>> index;
+    /**
+     * key到链表节点的映射
+     */
+    private Map<K, LRUEntry<K, V>> index;
 
-    public LRUCacheEvict() {
+    /**
+     * 缓存
+     */
+    private ICache<K, V> cache;
+
+    public LRUCacheEvict(ICache<K, V> cache) {
         head = new LRUEntry<>(null, null);
         head.setNext(head);
         head.setPrev(head);
-
+        this.cache = cache;
         index = new HashMap<>();
     }
 
     @Override
-    public CacheEntry<K, V> evict(K key, ICache<K, V> cache) {
+    public CacheEntry<K, V> evict(K key) {
         if(cache.size() < cache.getCapacity() || index.containsKey(key)){
             return null;
         }else{
@@ -49,9 +57,9 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
     }
 
     @Override
-    public void updateStatus(K key, ICache<K, V> map) {
+    public void updateStatus(K key) {
         if(index.containsKey(key)){
-            deleteKey(key, map);
+            deleteKey(key);
         }
 
         LRUEntry<K, V> entry = new LRUEntry<>(key, null);
@@ -66,7 +74,7 @@ public class LRUCacheEvict<K, V> implements ICacheEvict<K, V> {
     }
 
     @Override
-    public void deleteKey(K key, ICache<K, V> map) {
+    public void deleteKey(K key) {
         LRUEntry<K, V> entryToRemove = index.get(key);
 
         if(entryToRemove != null){

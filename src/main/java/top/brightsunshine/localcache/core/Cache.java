@@ -2,6 +2,9 @@ package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.annotation.CacheInterceptor;
 import top.brightsunshine.localcache.cacheInterface.*;
+import top.brightsunshine.localcache.core.evict.LFUCacheEvict;
+import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
+import top.brightsunshine.localcache.core.evict.WTinyLFUCacheEvict;
 import top.brightsunshine.localcache.core.expire.CacheExpirePeriodic;
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.expire.CacheExpireTimeWheel;
@@ -16,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static top.brightsunshine.localcache.core.constant.CacheEvictConstant.*;
 import static top.brightsunshine.localcache.core.constant.CacheExpireConstant.*;
 import static top.brightsunshine.localcache.core.constant.CacheLoadConstant.*;
 import static top.brightsunshine.localcache.core.constant.CachePersistConstant.*;
@@ -289,6 +293,27 @@ public class Cache<K,V> implements ICache<K,V> {
 
         }
         return this;
+    }
+
+    public void initEvict(int cacheEvict) {
+        switch (cacheEvict){
+            case LRU: {
+                this.cacheEvict = new LRUCacheEvict<>(this);
+                break;
+            }
+            case LFU: {
+                this.cacheEvict = new LFUCacheEvict<>(this);
+                break;
+            }
+            case W_TINY_LFU: {
+                this.cacheEvict = new WTinyLFUCacheEvict<>(this);
+                break;
+            }
+            default: {
+                this.cacheEvict = new WTinyLFUCacheEvict<>(this);
+                break;
+            }
+        }
     }
 
     public ICache<K, V> noLoader(){

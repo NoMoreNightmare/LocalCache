@@ -159,7 +159,7 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
             if(expireTime <= currTime){
                 expireDict.remove(key);
                 V value = cache.remove(key);
-                cache.getEvictStrategy().deleteKey(key, cache);
+                cache.getEvictStrategy().deleteKey(key);
                 removeListener.listen(key, value, CacheRemoveConstant.REMOVE_EXPIRE);
             }
         }
