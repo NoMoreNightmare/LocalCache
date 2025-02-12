@@ -69,12 +69,20 @@ public class CacheAOFRewrite<K, V> {
             for (Map.Entry<K, V> kvEntry : replicaCache.entrySet()) {
                 if(expireTimes.containsKey(kvEntry.getKey())){
                     String method = "put";
-                    Object[] args = {kvEntry.getKey(), kvEntry.getValue(), expireTimes.get(kvEntry.getKey())};
+                    Object[] args = {kvEntry.getKey(), kvEntry.getValue()};
                     AofPersistEntry<K, V> entry = new AofPersistEntry<>();
                     entry.setMethod(method);
                     entry.setArgs(args);
                     ObjectMapper objectMapper = new ObjectMapper();
                     String json = objectMapper.writeValueAsString(entry);
+                    writer.println(json);
+
+                    method = "expireAt";
+                    args[1] = expireTimes.get(kvEntry.getKey());
+                    AofPersistEntry<K, V> expireEntry = new AofPersistEntry<>();
+                    expireEntry.setMethod(method);
+                    expireEntry.setArgs(args);
+                    json = objectMapper.writeValueAsString(expireEntry);
                     writer.println(json);
                 }else{
                     String method = "put";
