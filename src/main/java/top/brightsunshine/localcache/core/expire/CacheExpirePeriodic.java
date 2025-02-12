@@ -169,4 +169,9 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
     public void deleteAllKeys() {
         expireDict.clear();
     }
+
+    @Override
+    public Map<K, Long> expireTimes() {
+        return new HashMap<>(expireDict);
+    }
 }

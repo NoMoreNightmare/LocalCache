@@ -306,4 +306,13 @@ public class CacheExpireTimeWheel<K, V> implements ICacheExpire<K, V> {
         Arrays.fill(hours, null);
         Arrays.fill(days, null);
     }
+
+    @Override
+    public Map<K, Long> expireTimes() {
+        Map<K, Long> map = new HashMap<>();
+        for (Map.Entry<K, TimeWheelNode<K, V>> kTimeWheelNodeEntry : keyToTimeWheelNode.entrySet()) {
+            map.put(kTimeWheelNodeEntry.getKey(), kTimeWheelNodeEntry.getValue().getExpireAt());
+        }
+        return map;
+    }
 }

@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
 public class CachePersistAOFInterceptor<K, V> implements ICacheInterceptor<K, V> {
     @Override
     public void before(CacheInterceptorContext<K, V> context) {
-
     }
 
     @Override

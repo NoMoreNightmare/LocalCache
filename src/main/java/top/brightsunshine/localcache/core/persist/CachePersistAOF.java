@@ -11,10 +11,15 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import static top.brightsunshine.localcache.core.constant.CachePersistConstant.*;
 
@@ -45,10 +50,29 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
      */
     private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
 
+    /**
+     * aof重写线程
+     */
+    private static final ScheduledExecutorService REWRITE_SERVICE = Executors.newSingleThreadScheduledExecutor();
+
+    /**
+     * aof重写锁
+     */
+    private ReentrantLock rewriteLock = new ReentrantLock();
+
+    /**
+     * aof重写
+     */
+    private CacheAOFRewrite<K, V> cacheAOFRewrite;
+
+//    private long rewriteThreshold = 1024 * 1024 * 10; //10MB
+    private long rewriteThreshold = 1; //1MB
+
     public CachePersistAOF(ICache<K, V> cache, int mode, String aofFilePath) {
         this.cache = cache;
         this.mode = mode;
         this.aofFilePath = aofFilePath;
+        this.cacheAOFRewrite = new CacheAOFRewrite<>(aofFilePath, this);
         this.startAOFFlush();
     }
 
@@ -77,7 +101,9 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
         @Override
         public void run() {
             //把buffer中的数据刷新到磁盘文件
+            rewriteLock.lock();
             cachePersist.persist();
+            rewriteLock.unlock();
         }
     }
 
@@ -85,6 +111,7 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
         this.cache = cache;
         this.mode = AOF_ALWAYS;
         this.aofFilePath = DEFAULT_AOF_PATH;
+        this.cacheAOFRewrite = new CacheAOFRewrite(aofFilePath, this);
     }
 
     public int mode(){
@@ -165,8 +192,71 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
     }
 
     public void appendAof(String json){
+        //如果正在进行持久化，或者正在把AOF重写缓冲区里的数据刷新到磁盘文件中，加锁
+        rewriteLock.lock();
         if(json != null && !json.isEmpty()){
             buffer.add(json);
         }
+        rewriteLock.unlock();
+
+        if(cacheAOFRewrite.isRewriting()){
+            cacheAOFRewrite.append(json);
+        }else{
+            File file = new File(aofFilePath);
+            if(file.length() >= rewriteThreshold){
+                REWRITE_SERVICE.schedule(new RewriteThread(), 0, TimeUnit.SECONDS);
+            }
+        }
+    }
+
+    public ReentrantLock getRewriteLock() {
+        return rewriteLock;
+    }
+
+    public void setRewriteLock(ReentrantLock rewriteLock) {
+        this.rewriteLock = rewriteLock;
+    }
+
+    private class RewriteThread implements Runnable {
+        @Override
+        public void run() {
+            System.out.println("start...");
+            startAofRewrite();
+            System.out.println("end...");
+        }
+    }
+
+    public void startAofRewrite(){
+        //1.加锁
+        rewriteLock.lock();
+        //设置isRewrite为true
+            //获取expireTimes
+            //创建cache的快照
+        cacheAOFRewrite.setRewriting(true);
+        Map<K, Long> expireMap = cache.getExpireStrategy().expireTimes();
+        Map<K, V> replicaCache = new HashMap<>(cache.map());
+        cacheAOFRewrite.setReplicaCache(replicaCache);
+        //2.解锁
+        rewriteLock.unlock();
+            //开始将快照cache里的数据写入到重写文件
+            //同时所有记录在aof和aof重写缓冲区存一份
+        cacheAOFRewrite.flushCacheToFile(expireMap);
+        //3.加锁（这个过程禁止处理新命令）
+        rewriteLock.lock();
+            //把aof缓冲区刷到旧aof文件，aof重写缓冲区刷到新aof文件
+        CompletableFuture<Void> flushAofBuffer = CompletableFuture.runAsync(this::persist);
+        CompletableFuture<Void> flushAofRewriteBuffer = CompletableFuture.runAsync(cacheAOFRewrite::flushRewriteBuffer);
+
+            //在上面两个完成后，替换aof文件
+        CompletableFuture<Void> finalTask = CompletableFuture.allOf(flushAofBuffer, flushAofRewriteBuffer)
+                .thenRun(cacheAOFRewrite::replaceAofFile)
+                .thenRun(() -> {
+                    //将isRewrite设置为false
+                    cacheAOFRewrite.setRewriting(false);
+                });
+
+        //4.解锁
+        finalTask.join();
+        rewriteLock.unlock();
     }
 }

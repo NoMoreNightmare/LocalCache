@@ -41,3 +41,4 @@ build/
 /remove.log
 /slowlog.log
 /1.rdb
+/src/test/java/CMS.java

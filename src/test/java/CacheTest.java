@@ -5,14 +5,20 @@ import top.brightsunshine.localcache.core.constant.CacheEvictConstant;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
-import top.brightsunshine.localcache.core.evict.LFUCacheEvict;
+import top.brightsunshine.localcache.core.entry.TimeWheelNode;
 import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import org.junit.*;
 import top.brightsunshine.localcache.core.evict.WTinyLFUCacheEvict;
 import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
 
+import java.io.File;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static top.brightsunshine.localcache.core.constant.CacheEvictConstant.LFU;
 import static top.brightsunshine.localcache.core.constant.CacheEvictConstant.LRU;
@@ -306,6 +312,7 @@ public class CacheTest {
         cms.increment("nihao");
     }
 
+
     @Test
     public void testWTinyLFUEvict() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
@@ -328,6 +335,126 @@ public class CacheTest {
 
         evict = (WTinyLFUCacheEvict) cache.getEvictStrategy();
     }
+
+    @Test
+    public void testWTinyLFUEvict2() throws InterruptedException {
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(50).map(new HashMap<>())
+                .slowListener(new CacheSlowListener<>())
+                .cacheEvict(CacheEvictConstant.W_TINY_LFU)
+                .build();
+
+        WTinyLFUCacheEvict evict = (WTinyLFUCacheEvict) cache.getEvictStrategy();
+        for(int i = 0; i < 51; i++){
+            cache.put("key" + i, "value" + i);
+
+        }
+
+        for(int i = 0; i < 51; i++){
+            for (int j = 0; j < 8; j++) {
+                cache.get("key" + i);
+            }
+        }
+
+        for (int i = 51; i < 101; i++) {
+            cache.put("key" + i, "value" + i);
+        }
+
+
+        Assert.assertEquals(null, cache.get("key0"));
+        Assert.assertEquals("value50", cache.get("key50"));
+        Assert.assertEquals(null, cache.get("key80"));
+        Assert.assertEquals("value100", cache.get("key100"));
+
+    }
+
+    @Test
+    public void testWeakReference() throws InterruptedException {
+        ConcurrentHashMap<String, String> mainMap = new ConcurrentHashMap<>();
+        SoftReference<ConcurrentHashMap<String, String>> snapshotRef;
+
+        for (int i = 0; i < 100000; i++) {
+            mainMap.put("key" + i, "value" + i);
+        }
+        mainMap.put("key1", "value1");
+        mainMap.put("key2", "value2");
+
+        long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        // 创建弱引用快照
+//        snapshotRef = new SoftReference<>(new ConcurrentHashMap<>(mainMap));
+        ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>(mainMap);
+        long memoryAfter = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+        System.out.println(memoryAfter - memoryBefore);
+
+        if(map.containsKey("key1")){
+            Assert.assertEquals("value1", map.get("key1"));
+        }
+        // 启动 AOF 重写
+//        rewriteAOF(snapshotRef, mainMap);
+
+        // 修改数据，触发写时复制
+
+//        for (Map.Entry<String, String> stringStringEntry : snapshotRef.get().entrySet()) {
+//            System.out.println(stringStringEntry);
+//        }
+        // 检查快照是否仍然可用
+//        System.out.println("Snapshot: " + snapshotRef.get());
+    }
+
+    private static void rewriteAOF(SoftReference<ConcurrentHashMap<String, String>> snapshotRef, ConcurrentHashMap<String, String> mainMap) {
+        ConcurrentHashMap<String, String> snapshot = snapshotRef.get();
+        if (snapshot == null) {
+            snapshot = new ConcurrentHashMap<>(mainMap); // 重新生成快照
+        }
+
+        // 模拟 AOF 重写
+        for (Map.Entry<String, String> entry : snapshot.entrySet()) {
+            System.out.println("Rewriting: SET " + entry.getKey() + " " + entry.getValue());
+        }
+    }
+
+    @Test
+    public void reference(){
+        TimeWheelNode<String, String> timeWheelNode = new TimeWheelNode<>("1", 11111110);
+        TimeWheelNode<String, String> timeWheelNode2 = new TimeWheelNode<>("2", 222222222);
+
+        Map<String, TimeWheelNode<String, String>> map = new HashMap<>();
+        map.put("1", timeWheelNode);
+        map.put("2", timeWheelNode2);
+
+        Map<String, TimeWheelNode<String, String>> newMap = new HashMap<>(map);
+
+        timeWheelNode2.expireAt(0);
+
+        System.out.println(newMap.get("2").getExpireAt());
+
+    }
+
+    @Test
+    public void testAOFRewrite(){
+        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+        ICache<String, String> cache = cacheBuilder.capacity(10).map(new HashMap<>())
+                .slowListener(new CacheSlowListener<>())
+//                .cacheEvict(CacheEvictConstant.W_TINY_LFU)
+                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "2.aof")
+                .build();
+
+
+
+        try{
+            for (int i = 0; i < 100; i++) {
+                cache.put("key" + i, "value" + i);
+            }
+            System.out.println(cache.size());
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+
+
+    }
+
+
 
 
 

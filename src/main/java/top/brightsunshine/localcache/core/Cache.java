@@ -80,6 +80,11 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
+    public Map<K, V> map(){
+        return map;
+    }
+
+    @Override
     public ICache<K, V> capacity(int newCapacity) {
         this.capacity = newCapacity;
         return this;

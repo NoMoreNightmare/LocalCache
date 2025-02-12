@@ -18,4 +18,6 @@ public interface ICacheExpire<K, V> {
     void tryToDeleteExpiredKey(K key);
 
     void deleteAllKeys();
+
+    Map<K, Long> expireTimes();
 }

@@ -92,6 +92,8 @@ public interface ICache<K, V> extends Map<K, V> {
      */
     ICache<K, V> slowListener(ICacheSlowListener<K, V> listener);
 
+    Map<K, V> map();
+
 //
 //    /**
 //     * 获取加载策略
