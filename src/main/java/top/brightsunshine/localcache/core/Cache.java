@@ -16,6 +16,7 @@ import top.brightsunshine.localcache.core.persist.CachePersistAOF;
 import top.brightsunshine.localcache.core.persist.CachePersistRDB;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,12 +61,13 @@ public class Cache<K,V> implements ICache<K,V> {
     /**
      * 删除监听类
      */
-    ICacheRemoveListener<K, V> removeListener;
+//    ICacheRemoveListener<K, V> removeListener;
+    List<ICacheRemoveListener<K, V>> removeListeners;
 
     /**
      * 慢操作监听类
      */
-    private ICacheSlowListener<K, V> slowListener;
+    List<ICacheSlowListener<K, V>> slowListeners;
 
     @Override
     public int getCapacity(){
@@ -215,24 +217,24 @@ public class Cache<K,V> implements ICache<K,V> {
     }
 
     @Override
-    public ICacheRemoveListener<K, V> getRemoveListener() {
-        return removeListener;
+    public List<ICacheRemoveListener<K, V>> getRemoveListeners() {
+        return removeListeners;
     }
 
     @Override
-    public ICache<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
-        this.removeListener = listener;
+    public ICache<K, V> addRemoveListener(List<ICacheRemoveListener<K, V>> listener) {
+        this.removeListeners = listener;
         return this;
     }
 
     @Override
-    public ICacheSlowListener<K, V> getSlowListener() {
-        return slowListener;
+    public List<ICacheSlowListener<K, V>> getSlowListeners() {
+        return slowListeners;
     }
 
     @Override
-    public ICache<K, V> slowListener(ICacheSlowListener<K, V> listener) {
-        this.slowListener = listener;
+    public ICache<K, V> addSlowListener(ICacheSlowListener<K, V> listener) {
+        this.slowListeners.add(listener);
         return this;
     }
 

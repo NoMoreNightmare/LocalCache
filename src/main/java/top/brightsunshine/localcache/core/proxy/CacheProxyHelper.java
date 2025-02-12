@@ -59,8 +59,8 @@ public class CacheProxyHelper {
                 .method(cacheProxyContext.method())
                 .args(cacheProxyContext.args())
                 .cache(cache)
-                .removeListener(cache.getRemoveListener())
-                .slowListener(cache.getSlowListener())
+                .removeListener(cache.getRemoveListeners())
+                .slowListeners(cache.getSlowListeners())
                 .startTime(System.currentTimeMillis());
 
         if(interceptor != null) {

@@ -150,7 +150,7 @@ public class CacheTest {
     }
 
     @Test
-    public void testRemoveListener() throws InterruptedException {
+    public void testAddRemoveListener() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
@@ -164,7 +164,7 @@ public class CacheTest {
     }
 
     @Test
-    public void testRemoveListenerForExpired() throws InterruptedException {
+    public void testAddRemoveListenerForExpired() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)
@@ -184,7 +184,7 @@ public class CacheTest {
     }
 
     @Test
-    public void testSlowListener() throws InterruptedException {
+    public void testAddSlowListener() throws InterruptedException {
         CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
         ICache<String, String> cache = cacheBuilder.capacity(20).map(new HashMap<>())
                 .cacheExpire(CacheExpireConstant.PERIODIC_EXPIRE)

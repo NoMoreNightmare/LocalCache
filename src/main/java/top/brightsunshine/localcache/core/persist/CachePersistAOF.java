@@ -234,55 +234,40 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
     private class RewriteThread implements Runnable {
         @Override
         public void run() {
-            System.out.println("start...");
             startAofRewrite();
-            System.out.println("end...");
         }
     }
 
     public void startAofRewrite(){
         //1.加锁
         rewriteLock.lock();
-        System.out.println("start1");
         //设置isRewrite为true
             //获取expireTimes
             //创建cache的快照
 
         cacheAOFRewrite.setRewriting(true);
-        System.out.println("create expire map start...");
         Map<K, Long> expireMap = cache.getExpireStrategy().expireTimes();
-        System.out.println("create expire map end...");
-        System.out.println("create replica cache start...");
         Map<K, V> replicaCache = new HashMap<>(cache.map());
-        System.out.println("create replica cache end...");
         cacheAOFRewrite.setReplicaCache(replicaCache);
         //2.解锁
         rewriteLock.unlock();
             //开始将快照cache里的数据写入到重写文件
             //同时所有记录在aof和aof重写缓冲区存一份
         cacheAOFRewrite.flushCacheToFile(expireMap);
-        System.out.println("end1");
+
         //3.加锁（这个过程禁止处理新命令）
         rewriteLock.lock();
-        System.out.println("start2");
             //把aof缓冲区刷到旧aof文件，aof重写缓冲区刷到新aof文件
         CompletableFuture<Void> flushAofBuffer = CompletableFuture.runAsync(() ->  {
-            System.out.println("flush aof buffer start");
             this.persist();
-            System.out.println("flush aof buffer end");
         });
         CompletableFuture<Void> flushAofRewriteBuffer = CompletableFuture.runAsync(() -> {
-            System.out.println("flush aof rewrite buffer start");
             cacheAOFRewrite.flushRewriteBuffer();
-            System.out.println("flush aof rewrite buffer end");
         });
-        System.out.println("end2");
             //在上面两个完成后，替换aof文件
         CompletableFuture<Void> finalTask = CompletableFuture.allOf(flushAofBuffer, flushAofRewriteBuffer)
                 .thenRun(() -> {
-                    System.out.println("replace aof file start...");
                     cacheAOFRewrite.replaceAofFile();
-                    System.out.println("replace aof file end...");
                 })
                 .thenRun(() -> {
                     //将isRewrite设置为false
@@ -291,9 +276,7 @@ public class CachePersistAOF<K, V> implements ICachePersist<K, V> {
 
 
         //4.解锁
-        System.out.println("start3");
         finalTask.join();
-        System.out.println("end3");
         rewriteLock.unlock();
     }
 }

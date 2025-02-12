@@ -5,6 +5,7 @@ import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.cacheInterface.ICacheSlowListener;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * 拦截器需要的对象信息组成的上下文
@@ -17,9 +18,9 @@ public class CacheInterceptorContext<K, V> {
 
     private Object result;
 
-    private ICacheRemoveListener<K, V> removeListener;
+    private List<ICacheRemoveListener<K, V>> removeListeners;
 
-    private ICacheSlowListener<K, V> slowListener;
+    private List<ICacheSlowListener<K, V>> slowListeners;
 
     private long startTime;
 
@@ -29,22 +30,22 @@ public class CacheInterceptorContext<K, V> {
         return new CacheInterceptorContext<>();
     }
 
-    public CacheInterceptorContext<K, V> removeListener(ICacheRemoveListener<K, V> listener) {
-        this.removeListener = listener;
+    public CacheInterceptorContext<K, V> removeListener(List<ICacheRemoveListener<K, V>> listener) {
+        this.removeListeners = listener;
         return this;
     }
 
-    public ICacheRemoveListener<K, V> getRemoveListener() {
-        return removeListener;
+    public List<ICacheRemoveListener<K, V>> getRemoveListeners() {
+        return removeListeners;
     }
 
-    public CacheInterceptorContext<K, V> slowListener(ICacheSlowListener<K, V> listener) {
-        this.slowListener = listener;
+    public CacheInterceptorContext<K, V> slowListeners(List<ICacheSlowListener<K, V>> listeners) {
+        this.slowListeners = listeners;
         return this;
     }
 
-    public ICacheSlowListener<K, V> getSlowListener() {
-        return slowListener;
+    public List<ICacheSlowListener<K, V>> getSlowListeners() {
+        return slowListeners;
     }
 
     public ICache<K, V> getCache() {

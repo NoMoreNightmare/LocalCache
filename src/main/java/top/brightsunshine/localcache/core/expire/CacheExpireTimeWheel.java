@@ -8,6 +8,7 @@ import top.brightsunshine.localcache.core.listener.remove.CacheRemoveConstant;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,7 +30,7 @@ public class CacheExpireTimeWheel<K, V> implements ICacheExpire<K, V> {
     /**
      * 删除监听器
      */
-    private ICacheRemoveListener<K, V> removeListener;
+    private List<ICacheRemoveListener<K, V>> removeListeners;
 
     /**
      * 毫秒级时间轮(100ms)
@@ -91,7 +92,7 @@ public class CacheExpireTimeWheel<K, V> implements ICacheExpire<K, V> {
 
     public CacheExpireTimeWheel(ICache<K, V> cache) {
         this.cache = cache;
-        this.removeListener = cache.getRemoveListener();
+        this.removeListeners = cache.getRemoveListeners();
         //初始化5个定时任务
         ROUND_ROBIN_MILLI.scheduleAtFixedRate(new MilliTask(), 0, milli, TimeUnit.MILLISECONDS);
         ROUND_ROBIN_SEC.scheduleAtFixedRate(new UpperTimerTask(SECOND), 0, 1, TimeUnit.SECONDS);
@@ -292,7 +293,10 @@ public class CacheExpireTimeWheel<K, V> implements ICacheExpire<K, V> {
         if(cache.containsKey(key)) {
             V value = cache.remove(key);
             cache.getEvictStrategy().deleteKey(key);
-            removeListener.listen(key, value, CacheRemoveConstant.REMOVE_EXPIRE);
+            for (ICacheRemoveListener<K, V> removeListener : removeListeners) {
+                removeListener.listen(key, value, CacheRemoveConstant.REMOVE_EXPIRE);
+            }
+
         }
 
     }

@@ -8,6 +8,7 @@ import top.brightsunshine.localcache.core.interceptor.context.CacheInterceptorCo
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import static top.brightsunshine.localcache.core.listener.remove.CacheRemoveConstant.REMOVE_EVICT;
@@ -17,21 +18,26 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
     public void before(CacheInterceptorContext<K, V> context) {
         Method method = context.getMethod();
         Object[] args = context.getArgs();
-        ICacheRemoveListener<K, V> listener = context.getRemoveListener();
+        List<ICacheRemoveListener<K, V>> listeners = context.getRemoveListeners();
 
         ICacheEvict<K, V> evictStrategy = context.getCache().getEvictStrategy();
 
         if("put".equals(method.getName())) {
             CacheEntry<K, V> entry = evictStrategy.evict((K) args[0]);
             if(entry != null) {
-                listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                for (ICacheRemoveListener<K, V> listener : listeners) {
+                    listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                }
+
             }
         }else if("putAll".equals(method.getName())) {
             Map<K, V> map = (Map<K, V>) args[0];
             for (K key : map.keySet()) {
                 CacheEntry<K, V> entry = evictStrategy.evict(key);
                 if(entry != null) {
-                    listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                    for (ICacheRemoveListener<K, V> listener : listeners) {
+                        listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                    }
                 }
             }
         }
@@ -44,7 +50,7 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
 
         //获取被拦截的方法
         Method method = context.getMethod();
-        ICacheRemoveListener<K, V> listener = context.getRemoveListener();
+        List<ICacheRemoveListener<K, V>> listeners = context.getRemoveListeners();
 
         //获取被拦截的方法的第一个参数：注意key在参数中的顺序
         if("putAll".equals(method.getName())) {
@@ -53,7 +59,9 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
                 CacheEntry<K, V> entry = evictStrategy.updateStatus(key);
                 if(context.getCache() instanceof WTinyLFUCacheEvict){
                     if(entry != null) {
-                        listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                        for (ICacheRemoveListener<K, V> listener : listeners) {
+                            listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                        }
                     }
                 }
             }
@@ -66,7 +74,9 @@ public class CacheEvictInterceptor<K, V> implements ICacheInterceptor<K, V> {
             //WTinyLFU的驱逐过程可能发生在更新key期间
             if(context.getCache().getEvictStrategy() instanceof WTinyLFUCacheEvict){
                 if(entry != null) {
-                    listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                    for (ICacheRemoveListener<K, V> listener : listeners) {
+                        listener.listen(entry.getKey(), entry.getValue(), REMOVE_EVICT);
+                    }
                 }
             }
         }

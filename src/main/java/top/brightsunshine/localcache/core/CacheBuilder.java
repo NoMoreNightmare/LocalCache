@@ -1,19 +1,19 @@
 package top.brightsunshine.localcache.core;
 
 import top.brightsunshine.localcache.cacheInterface.ICache;
-import top.brightsunshine.localcache.cacheInterface.ICacheEvict;
 import top.brightsunshine.localcache.cacheInterface.ICacheSlowListener;
 import top.brightsunshine.localcache.core.constant.CacheEvictConstant;
 import top.brightsunshine.localcache.core.constant.CacheExpireConstant;
 import top.brightsunshine.localcache.core.constant.CacheLoadConstant;
 import top.brightsunshine.localcache.core.constant.CachePersistConstant;
-import top.brightsunshine.localcache.core.evict.LRUCacheEvict;
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.listener.remove.CacheRemoveListener;
 import top.brightsunshine.localcache.core.listener.slow.CacheSlowListener;
 import top.brightsunshine.localcache.core.proxy.CacheProxy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CacheBuilder<K, V> {
@@ -78,7 +78,8 @@ public class CacheBuilder<K, V> {
     /**
      * 默认的删除监听器
      */
-    private ICacheRemoveListener<K, V> removeListener = new CacheRemoveListener<>();
+    private List<ICacheRemoveListener<K, V>> removeListeners = new ArrayList<ICacheRemoveListener<K, V>>();
+//    private ICacheRemoveListener<K, V> removeListener = new CacheRemoveListener<>();
 
     /**
      * 默认的慢操作监听器
@@ -134,8 +135,8 @@ public class CacheBuilder<K, V> {
         return this;
     }
 
-    public CacheBuilder<K, V> removeListener(ICacheRemoveListener<K, V> removeListener) {
-        this.removeListener = removeListener;
+    public CacheBuilder<K, V> addRemoveListener(ICacheRemoveListener<K, V> removeListener) {
+        this.removeListeners.add(removeListener);
         return this;
     }
 
@@ -149,8 +150,9 @@ public class CacheBuilder<K, V> {
         cache.map(map);
         cache.capacity(capacity);
 //        cache.evictStrategy(cacheEvict);
-        cache.removeListener(removeListener);
-        cache.slowListener(slowListener);
+        this.removeListeners.add(new CacheRemoveListener<>());
+        cache.addRemoveListener(removeListeners);
+        cache.addSlowListener(slowListener);
 
         cache.initEvict(cacheEvict);
         cache.initExpire(cacheExpire);

@@ -5,10 +5,7 @@ import top.brightsunshine.localcache.cacheInterface.ICacheExpire;
 import top.brightsunshine.localcache.cacheInterface.ICacheRemoveListener;
 import top.brightsunshine.localcache.core.listener.remove.CacheRemoveConstant;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +47,7 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
     /**
      * 删除监听器
      */
-    private ICacheRemoveListener<K, V> removeListener;
+    private List<ICacheRemoveListener<K, V>> removeListeners;
 
     /**
      * 定期执行类
@@ -59,7 +56,7 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
 
     public CacheExpirePeriodic(ICache<K, V> cache) {
         this.cache = cache;
-        this.removeListener = cache.getRemoveListener();
+        this.removeListeners = cache.getRemoveListeners();
         //初始化一个定时任务，每隔50ms
         EXECUTOR_SERVICE.scheduleAtFixedRate(new PeriodicDeletionTask(), 1000, 1000 / DELETION_FREQUENCY, TimeUnit.MILLISECONDS);
     }
@@ -160,7 +157,9 @@ public class CacheExpirePeriodic<K, V> implements ICacheExpire<K, V> {
                 expireDict.remove(key);
                 V value = cache.remove(key);
                 cache.getEvictStrategy().deleteKey(key);
-                removeListener.listen(key, value, CacheRemoveConstant.REMOVE_EXPIRE);
+                for (ICacheRemoveListener<K, V> removeListener : removeListeners) {
+                    removeListener.listen(key, value, CacheRemoveConstant.REMOVE_EXPIRE);
+                }
             }
         }
     }
