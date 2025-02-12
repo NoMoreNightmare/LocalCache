@@ -5,6 +5,8 @@ import top.brightsunshine.localcache.cacheInterface.ICache;
 import top.brightsunshine.localcache.cacheInterface.ICacheInterceptor;
 import top.brightsunshine.localcache.core.interceptor.CacheInterceptorUtil;
 import top.brightsunshine.localcache.core.interceptor.context.CacheInterceptorContext;
+import top.brightsunshine.localcache.core.interceptor.persist.CachePersistAOFInterceptor;
+import top.brightsunshine.localcache.core.persist.CachePersistAOF;
 import top.brightsunshine.localcache.core.proxy.context.ICacheProxyContext;
 
 import java.lang.reflect.InvocationTargetException;
@@ -81,8 +83,16 @@ public class CacheProxyHelper {
 
         }
 
+        Object result = null;
         //执行原始方法
-        Object result = cacheProxyContext.invokeOrigin();
+        if(cachePersistInterceptor instanceof CachePersistAOFInterceptor){
+            ((CachePersistAOF)cache.getPersistStrategy()).lock();
+            result = cacheProxyContext.invokeOrigin();
+            ((CachePersistAOF)cache.getPersistStrategy()).unlock();
+        }else{
+            result = cacheProxyContext.invokeOrigin();
+        }
+
 
         interceptorContext.endTime(System.currentTimeMillis());
 

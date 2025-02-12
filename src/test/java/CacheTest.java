@@ -432,24 +432,28 @@ public class CacheTest {
     }
 
     @Test
-    public void testAOFRewrite(){
-        CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
-        ICache<String, String> cache = cacheBuilder.capacity(10).map(new HashMap<>())
-                .slowListener(new CacheSlowListener<>())
+    public void testAOFRewrite() throws InterruptedException {
+        for (int k = 0; k < 100; k++) {
+            CacheBuilder<String, String> cacheBuilder = new CacheBuilder<>();
+            ICache<String, String> cache = cacheBuilder.capacity(10).map(new HashMap<>())
+                    .slowListener(new CacheSlowListener<>())
 //                .cacheEvict(CacheEvictConstant.W_TINY_LFU)
-                .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "2.aof")
-                .build();
+                    .cachePersist(CachePersistConstant.AOF_PERSIST, CachePersistConstant.AOF_ALWAYS, "2.aof")
+                    .build();
 
 
 
-        try{
-            for (int i = 0; i < 100; i++) {
-                cache.put("key" + i, "value" + i);
+            try{
+                for (int i = 0; i < 101; i++) {
+                    cache.put("key" + i, "value" + i);
+                }
+                System.out.println(cache.size());
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
-            System.out.println(cache.size());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            Thread.sleep(1000);
         }
+
 
 
     }

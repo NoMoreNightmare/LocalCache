@@ -16,13 +16,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Condition;
 
 public class CacheAOFRewrite<K, V> {
     private String aofFilePath;
     private String rewriteFilePath;
 
-    private List<String> buffer = new ArrayList<>();
+    private List<String> buffer = new CopyOnWriteArrayList<>();
 
     private Map<K, V> replicaCache;
 
